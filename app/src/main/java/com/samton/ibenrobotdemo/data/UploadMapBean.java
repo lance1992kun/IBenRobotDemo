@@ -22,6 +22,15 @@ public class UploadMapBean {
     private Object _token_iben;
     private int rs;
     private String msg;
+    private Data data;
+
+    public Data getData() {
+        return data;
+    }
+
+    public void setData(Data data) {
+        this.data = data;
+    }
 
     public void set_token_iben(Object _token_iben) {
         this._token_iben = _token_iben;
@@ -45,5 +54,26 @@ public class UploadMapBean {
 
     public String getMsg() {
         return msg;
+    }
+
+    public class Data{
+        private String errorCode;
+        private String errorMsg;
+
+        public String getErrorCode() {
+            return errorCode;
+        }
+
+        public void setErrorCode(String errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String getErrorMsg() {
+            return errorMsg;
+        }
+
+        public void setErrorMsg(String errorMsg) {
+            this.errorMsg = errorMsg;
+        }
     }
 }

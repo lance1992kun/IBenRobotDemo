@@ -62,7 +62,7 @@ public class HttpUtil {
         // 自定义OkHttpClient
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 // 网络请求拦截器
-                // .addInterceptor(httpLoggingInterceptor)
+                .addInterceptor(new LoggingInterceptor())
                 // 访问HTTPS
                 // .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
                 // 连接超时>>>10秒

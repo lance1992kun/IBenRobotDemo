@@ -6,7 +6,7 @@ package com.samton.pwmmotor;
  *     @author : syk
  *     e-mail : shenyukun1024@gmail.com
  *     time   : 2017/08/15
- *     desc   : 舵机管理器(样机 - 南昌2)
+ *     desc   : 舵机管理器(样机 - 南昌3)
  *     version: 2.0
  * </pre>
  */
@@ -19,35 +19,35 @@ public class PwmMotor {
     /**
      * 左手垂直时间点
      */
-    private final static double LEFT_ARM_VERTICAL = 1.65 * 1000000;
+    private final static double LEFT_ARM_VERTICAL = 1.45 * 1000000;
     /**
      * 左手水平时间点
      */
-    private final static double LEFT_ARM_HORIZONTAL = 2.25 * 1000000;
+    private final static double LEFT_ARM_HORIZONTAL = 2.05 * 1000000;
     /**
      * 右手垂直时间点
      */
-    private final static double RIGHT_ARM_VERTICAL = 2.20 * 1000000;
+    private final static double RIGHT_ARM_VERTICAL = 2.05 * 1000000;
     /**
      * 右手水平时间点
      */
-    private final static double RIGHT_ARM_HORIZONTAL = 1.60 * 1000000;
+    private final static double RIGHT_ARM_HORIZONTAL = 1.45 * 1000000;
     /**
      * 头部左侧时间点
      */
-    private final static double HEAD_LEFT = 1.40 * 1000000;
+    private final static double HEAD_LEFT = 1.42 * 1000000;
     /**
      * 头部左侧回中间时间点
      */
-    private final static double HEAD_LEFT_2_MIDDLE = 1.60 * 1000000;
+    private final static double HEAD_LEFT_2_MIDDLE = 1.62 * 1000000;
     /**
      * 头部右侧时间点
      */
-    private final static double HEAD_RIGHT = 1.80 * 1000000;
+    private final static double HEAD_RIGHT = 1.82 * 1000000;
     /**
      * 头部右侧回中间时间点
      */
-    private final static double HEAD_RIGHT_2_MIDDLE = 1.60 * 1000000;
+    private final static double HEAD_RIGHT_2_MIDDLE = 1.62 * 1000000;
     /**
      * 头部在左侧的常量值
      */
