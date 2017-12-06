@@ -16,7 +16,7 @@ public final class HttpUrl {
      * 正式地址 http://114.55.111.3/
      * 测试地址 http://121.41.40.145:7080/
      */
-    static final String BASE_URL = "http://121.41.40.145:7080/";
+    static final String BASE_URL = "http://114.55.111.3/";
     /**
      * 初始化机器人信息接口
      * 正式地址 robotInfo/robotInit
@@ -28,7 +28,7 @@ public final class HttpUrl {
      * 正式地址 scene/addScene
      * 测试地址 XiaoBenManager/scene/addScene
      */
-    final static String ADD_SCENE = "XiaoBenManager/scene/addScene";
+    final static String ADD_SCENE = "scene/addScene";
     /**
      * 修改地图接口
      * 正式地址 scene/updateScene

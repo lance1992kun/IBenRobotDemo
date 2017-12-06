@@ -288,7 +288,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                         // 定点信息
                         String savedLocations = CacheUtils.getInstance().getString(content);
                         if (TextUtils.isEmpty(savedLocations)) {
-                            savedLocations = "";
+                            savedLocations = "[]";
                         }
                         // 地图文件体
                         RequestBody fileRequestBody = RequestBody.create(MediaType.parse("image/*"), file);
