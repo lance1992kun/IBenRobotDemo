@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/mSendTestEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="111" />
+
+        <Button
+            android:id="@+id/mSendTestBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="发送消息到小笨测试按钮" />
+
+        <Button
+            android:id="@+id/mTTSTestBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="让小笨说话测试按钮" />
+
+        <Button
+            android:id="@+id/mRecordTestBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="你和小笨说话按钮" />
+
+        <Button
+            android:id="@+id/mTranslateTestBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="翻译测试按钮" />
+
+        <Button
+            android:id="@+id/mPrintTestBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="打印测试按钮" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/mLeftUp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左手臂抬起" />
+
+            <Button
+                android:id="@+id/mLeftDown"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左手臂放下" />
+
+            <Button
+                android:id="@+id/mRightUp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右手臂抬起" />
+
+            <Button
+                android:id="@+id/mRightDown"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右手臂放下" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/mHeadLeft"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="头部到左边" />
+
+            <Button
+                android:id="@+id/mHeadMiddle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="头部到中间" />
+
+            <Button
+                android:id="@+id/mHeadRight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="头部到右边" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/mDancingTestBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="跳舞测试" />
+
+        <TextView
+            android:id="@+id/mStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="录音状态显示…" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorAccent" />
+
+        <TextView
+            android:id="@+id/mResultText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="这里显示小笨的回话" />
+    </LinearLayout>
+</ScrollView>
