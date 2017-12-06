@@ -285,6 +285,11 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     @Override
                     public void onSuccess() {
                         File file = new File(Constants.MAP_PATH + "/" + content);
+                        // 定点信息
+                        String savedLocations = CacheUtils.getInstance().getString(content);
+                        if (TextUtils.isEmpty(savedLocations)) {
+                            savedLocations = "";
+                        }
                         // 地图文件体
                         RequestBody fileRequestBody = RequestBody.create(MediaType.parse("image/*"), file);
                         MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequestBody);
@@ -294,7 +299,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                         HttpUtil.getInstance().create(APIService.class)
                                 .addScene(RequestBody.create(null, "9aabd5edb430460c9582769041bd2539"),
                                         RequestBody.create(null, content),
-                                        RequestBody.create(null, CacheUtils.getInstance().getString(content)),
+                                        RequestBody.create(null, savedLocations),
                                         filePart, imgFilePart).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new Consumer<UploadMapBean>() {
                                     @Override
@@ -317,8 +322,8 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     }
                 });
                 // TODO 清空保存地址缓存文件，写入缓存
-                CacheUtils.getInstance().put(content, mLocations);
-                mLocations = null;
+//                CacheUtils.getInstance().put(content, mLocations);
+//                mLocations = null;
                 break;
             // 获取当前点
             case "getLocation":
@@ -357,7 +362,11 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                 moveSDK.go2Location(destination, new IBenMoveSDK.MoveCallBack() {
                     @Override
                     public void onStateChange(ActionStatus status) {
-                        mServer.sendMessage("到达指定位置");
+                        if (status.equals(ActionStatus.FINISHED)) {
+                            mServer.sendMessage("到达指定位置");
+                        } else {
+                            mServer.sendMessage("无法到达指定位置");
+                        }
                     }
                 });
                 break;

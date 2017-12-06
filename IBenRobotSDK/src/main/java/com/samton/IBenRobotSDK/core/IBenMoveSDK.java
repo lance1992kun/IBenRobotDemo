@@ -1,7 +1,6 @@
 package com.samton.IBenRobotSDK.core;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 
 import com.samton.IBenRobotSDK.data.Constants;
@@ -612,6 +611,7 @@ public final class IBenMoveSDK {
                         oos.writeObject(map.getData());
                         // 关闭流并且刷新操作
                         oos.close();
+                        // 生成缩略图
                         FileUtils.createOrExistsFile(Constants.MAP_PATH_THUMB + "/" + mapName);
                         // 写入BMP图像
                         int width = map.getDimension().getWidth();
@@ -766,13 +766,14 @@ public final class IBenMoveSDK {
             int temp = 0x7f + buffer[i];
             rawData[i] = Color.rgb(temp, temp, temp);
         }
-        Bitmap result = Bitmap.createBitmap(rawData, width, height, Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
+//        Bitmap result = Bitmap.createBitmap(rawData, width, height, Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
 //        Bitmap newBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(result);
-        Bitmap temp = ImageUtils.getBitmap(android.R.mipmap.sym_def_app_icon);
-        canvas.drawBitmap(temp, 0, 0, null);
-        canvas.save();
-        canvas.restore();
-        return result;
+//        Canvas canvas = new Canvas(result);
+//        Bitmap temp = ImageUtils.getBitmap(android.R.mipmap.sym_def_app_icon);
+//        canvas.drawBitmap(temp, 0, 0, null);
+//        canvas.save();
+//        canvas.restore();
+//        return result;
+        return Bitmap.createBitmap(rawData, width, height, Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
     }
 }
