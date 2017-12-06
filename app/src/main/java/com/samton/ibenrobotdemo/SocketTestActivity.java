@@ -245,15 +245,34 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
      * @param content 内容
      */
     private void handleBatteryMessage(String content) {
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("command", "return");
             jsonObject.put("type", "batteryMessage");
-            jsonObject.put("content", moveSDK.getBatteryInfo());
+            moveSDK.getBatteryInfo(new IBenMoveSDK.GetBatteryCallBack() {
+                @Override
+                public void onSuccess(String msg) {
+                    try {
+                        jsonObject.put("content", msg);
+                        mServer.sendMessage(jsonObject.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailed() {
+                    try {
+                        jsonObject.put("content", "获取电量失败");
+                        mServer.sendMessage(jsonObject.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mServer.sendMessage(jsonObject.toString());
     }
 
     /**

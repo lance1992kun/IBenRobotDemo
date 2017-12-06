@@ -127,6 +127,22 @@ public final class IBenMoveSDK {
         void onStateChange(ActionStatus status);
     }
 
+    /**
+     * 电量信息回调
+     */
+    public interface GetBatteryCallBack {
+        /**
+         * 获取电量成功
+         *
+         * @param msg 电量信息
+         */
+        void onSuccess(String msg);
+
+        /**
+         * 获取电量失败
+         */
+        void onFailed();
+    }
 
     /**
      * 获取机器人移动SDK单例
@@ -300,7 +316,7 @@ public final class IBenMoveSDK {
      *
      * @return 电量信息
      */
-    public String getBatteryInfo() {
+    public void getBatteryInfo(final GetBatteryCallBack callBack) {
         if (mRobotPlatform != null) {
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
@@ -322,7 +338,9 @@ public final class IBenMoveSDK {
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
                         onRequestError(new Exception("机器人连接失败"));
-                        mBatteryInfo = "";
+                        callBack.onFailed();
+                    } else {
+                        callBack.onSuccess(mBatteryInfo);
                     }
                 }
             }, new Consumer<Throwable>() {
@@ -333,9 +351,9 @@ public final class IBenMoveSDK {
             });
         } else {
             onRequestError(new Exception("机器人连接失败"));
+            callBack.onFailed();
             mBatteryInfo = "";
         }
-        return mBatteryInfo;
     }
 
     /**

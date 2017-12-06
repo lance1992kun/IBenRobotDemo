@@ -131,9 +131,8 @@ public class RobotSocketServer {
         try {
             mPrintWriter = new PrintWriter(mLastSocket.getOutputStream());
             // 向客户端发送信息
-            mPrintWriter.write(msg);
+            mPrintWriter.println(msg);
             mPrintWriter.flush();
-            mPrintWriter.println();
         } catch (Throwable throwable) {
             LogUtils.e(throwable.getMessage());
         }
