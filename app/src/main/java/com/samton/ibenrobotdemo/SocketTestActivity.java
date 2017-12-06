@@ -14,7 +14,9 @@ import com.samton.IBenRobotSDK.core.IBenTTSUtil;
 import com.samton.IBenRobotSDK.data.Constants;
 import com.samton.IBenRobotSDK.interfaces.IBenTTSCallBack;
 import com.samton.IBenRobotSDK.utils.CacheUtils;
+import com.samton.IBenRobotSDK.utils.FileUtils;
 import com.samton.IBenRobotSDK.utils.LogUtils;
+import com.samton.IBenRobotSDK.utils.MessageHelper;
 import com.samton.IBenRobotSDK.utils.NetworkUtils;
 import com.samton.ibenrobotdemo.data.UploadMapBean;
 import com.samton.ibenrobotdemo.net.APIService;
@@ -245,34 +247,17 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
      * @param content 内容
      */
     private void handleBatteryMessage(String content) {
-        final JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("command", "return");
-            jsonObject.put("type", "batteryMessage");
-            moveSDK.getBatteryInfo(new IBenMoveSDK.GetBatteryCallBack() {
-                @Override
-                public void onSuccess(String msg) {
-                    try {
-                        jsonObject.put("content", msg);
-                        mServer.sendMessage(jsonObject.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
+        moveSDK.getBatteryInfo(new IBenMoveSDK.GetBatteryCallBack() {
+            @Override
+            public void onSuccess(String msg) {
+                mServer.sendMessage(MessageHelper.getBatteryMessage(msg));
+            }
 
-                @Override
-                public void onFailed() {
-                    try {
-                        jsonObject.put("content", "获取电量失败");
-                        mServer.sendMessage(jsonObject.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailed() {
+                mServer.sendMessage(MessageHelper.getBatteryMessage("未能获取电量信息"));
+            }
+        });
     }
 
     /**
@@ -294,7 +279,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
 
                     @Override
                     public void onFailed() {
-                        mServer.sendMessage("获取地图失败");
+                        mServer.sendMessage(MessageHelper.getMapMessage("getMap", "获取地图失败"));
                     }
                 });
                 break;
@@ -311,45 +296,49 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                         }
                         // 地图文件体
                         RequestBody fileRequestBody = RequestBody.create(MediaType.parse("image/*"), file);
-                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequestBody);
+                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file",
+                                file.getName(), fileRequestBody);
                         // 地图缩略图文件
                         RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("image/*"), file);
-                        MultipartBody.Part imgFilePart = MultipartBody.Part.createFormData("imgFile", file.getName(), imageFileRequestBody);
+                        MultipartBody.Part imgFilePart = MultipartBody.Part.createFormData("imgFile",
+                                file.getName(), imageFileRequestBody);
                         HttpUtil.getInstance().create(APIService.class)
                                 .addScene(RequestBody.create(null, "9aabd5edb430460c9582769041bd2539"),
                                         RequestBody.create(null, content),
                                         RequestBody.create(null, savedLocations),
-                                        filePart, imgFilePart).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                                        filePart, imgFilePart)
+                                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new Consumer<UploadMapBean>() {
                                     @Override
                                     public void accept(UploadMapBean uploadMapBean) throws Exception {
-                                        LogUtils.e("Msg>>>" + uploadMapBean.getMsg());
-                                        LogUtils.e("Rs>>>" + uploadMapBean.getRs());
+                                        if (uploadMapBean.getRs() == 1) {
+                                            CacheUtils.getInstance().put(content, mLocations);
+                                            mLocations = null;
+                                            mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图成功"));
+                                        }
                                     }
                                 }, new Consumer<Throwable>() {
                                     @Override
                                     public void accept(Throwable throwable) throws Exception {
                                         LogUtils.e(throwable.getMessage());
+                                        mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图失败"));
                                     }
                                 });
-                        mServer.sendMessage("保存地图成功");
                     }
 
                     @Override
                     public void onFailed() {
-                        mServer.sendMessage("保存地图失败");
+                        mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图失败"));
                     }
                 });
-                // TODO 清空保存地址缓存文件，写入缓存
-//                CacheUtils.getInstance().put(content, mLocations);
-//                mLocations = null;
                 break;
             // 获取当前点
             case "getLocation":
                 Location currentLocation = moveSDK.getLocation();
                 if (currentLocation != null) {
                     try {
-                        String location = currentLocation.getX() + "," + currentLocation.getY() + "," + currentLocation.getZ();
+                        String location = currentLocation.getX() + ","
+                                + currentLocation.getY() + "," + currentLocation.getZ();
                         JSONObject object;
                         if (TextUtils.isEmpty(mLocations)) {
                             object = new JSONObject();
@@ -361,14 +350,58 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    mServer.sendMessage("设置点成功");
+                    mServer.sendMessage(MessageHelper.getMapMessage("getLocation", "设置点成功"));
                 } else {
-                    mServer.sendMessage("设置点失败");
+                    mServer.sendMessage(MessageHelper.getMapMessage("getLocation", "设置点失败"));
                 }
+                break;
+            // 移除指定点
+            case "removeLocation":
+                try {
+                    JSONObject removeObject = new JSONObject(mLocations);
+                    removeObject.remove(content);
+                    mLocations = removeObject.toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点失败"));
+                }
+                mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点成功"));
+                break;
+            // 修改指定点
+            case "editLocation":
+                String[] editPoints = content.split(",");
+                String oldName = editPoints[0];
+                String newName = editPoints[1];
+                try {
+                    JSONObject editObject = new JSONObject(mLocations);
+                    String oldContent = editObject.optString(oldName);
+                    editObject.remove(oldName);
+                    editObject.put(newName, oldContent);
+                    mLocations = editObject.toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点失败"));
+                }
+                mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点成功"));
                 break;
             // 回充电桩
             case "goHome":
                 moveSDK.goHome();
+                break;
+            // 删除地图
+            case "removeMap":
+                try {
+                    moveSDK.removeMap();
+                    File mapFile = new File(Constants.MAP_PATH + "/" + content);
+                    if (FileUtils.isFileExists(mapFile)) {
+                        FileUtils.deleteFile(mapFile);
+                        FileUtils.deleteFile(new File(Constants.MAP_PATH_THUMB + "/" + content));
+                        CacheUtils.getInstance().remove(content);
+                    }
+                    mServer.sendMessage(MessageHelper.getMapMessage("removeMap", "删除地图信息成功"));
+                } catch (Throwable throwable) {
+                    mServer.sendMessage(MessageHelper.getMapMessage("removeMap", "删除地图信息失败"));
+                }
                 break;
             // 停止地图刷新
             case "setMapUpdate":
@@ -377,14 +410,15 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
             // 行走到指定点
             case "navigation":
                 String[] points = content.split(",");
-                Location destination = new Location(Float.parseFloat(points[0]), Float.parseFloat(points[1]), Float.parseFloat(points[2]));
+                Location destination = new Location(Float.parseFloat(points[0]),
+                        Float.parseFloat(points[1]), Float.parseFloat(points[2]));
                 moveSDK.go2Location(destination, new IBenMoveSDK.MoveCallBack() {
                     @Override
                     public void onStateChange(ActionStatus status) {
                         if (status.equals(ActionStatus.FINISHED)) {
-                            mServer.sendMessage("到达指定位置");
+                            mServer.sendMessage(MessageHelper.getMapMessage("navigation", "到达指定位置"));
                         } else {
-                            mServer.sendMessage("无法到达指定位置");
+                            mServer.sendMessage(MessageHelper.getMapMessage("navigation", "无法到达指定位置"));
                         }
                     }
                 });

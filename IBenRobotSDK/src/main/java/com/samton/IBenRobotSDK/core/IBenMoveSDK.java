@@ -312,6 +312,17 @@ public final class IBenMoveSDK {
     }
 
     /**
+     * 清楚地图
+     */
+    public void removeMap(){
+        if (mRobotPlatform != null) {
+            mRobotPlatform.clearMap();
+        } else {
+            onRequestError(new Exception("机器人连接失败"));
+        }
+    }
+
+    /**
      * 获取电量百分比
      *
      * @return 电量信息

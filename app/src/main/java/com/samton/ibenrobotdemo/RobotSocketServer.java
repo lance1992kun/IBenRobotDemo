@@ -144,8 +144,8 @@ public class RobotSocketServer {
      * @param file 地图文件
      */
     public void sendMap(File file) {
-        DataOutputStream mDataOutputStream = null;
-        FileInputStream mFileInputStream = null;
+        DataOutputStream mDataOutputStream;
+        FileInputStream mFileInputStream;
         if (!mLastSocket.isClosed() && mLastSocket.isConnected()) {
             try {
                 mFileInputStream = new FileInputStream(file);
