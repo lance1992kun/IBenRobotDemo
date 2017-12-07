@@ -269,6 +269,13 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
      */
     private void handleMapMessage(String type, final String content) {
         switch (type) {
+            // 取消地图
+            case "cancelMap":
+                if (uploadArray != null) {
+                    uploadArray = null;
+                }
+                mServer.sendMessage(MessageHelper.getMapMessage("cancelMap", "取消地图成功"));
+                break;
             // 获取地图
             case "getMap":
                 moveSDK.saveMap(content, new IBenMoveSDK.MapCallBack() {
