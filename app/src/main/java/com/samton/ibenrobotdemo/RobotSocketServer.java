@@ -149,25 +149,17 @@ public class RobotSocketServer {
 //        FileInputStream mFileInputStream;
         if (!mLastSocket.isClosed() && mLastSocket.isConnected()) {
             try {
-//                mFileInputStream = new FileInputStream(file);
                 mDataOutputStream = new DataOutputStream(mLastSocket.getOutputStream());
                 if (FileUtils.isFileExists(file)) {
                     // 开始传输文件
                     LogUtils.e("开始传输文件");
-//                    byte[] bytes = new byte[1024];
-//                    int length;
-//                    while ((length = mFileInputStream.read(bytes, 0, bytes.length)) != -1) {
-//                        mDataOutputStream.write(bytes, 0, length);
-//                        mDataOutputStream.flush();
-//                    }
-                    byte[] bytes1 = FileIOUtils.readFile2BytesByChannel(file);
-                    if (bytes1 != null) {
-                        mDataOutputStream.write(bytes1);
+                    byte[] bytes = FileIOUtils.readFile2BytesByChannel(file);
+                    if (bytes != null) {
+                        mDataOutputStream.write(bytes);
                         mDataOutputStream.flush();
                     }
                     LogUtils.e("传输文件完成");
                     // 关闭流
-//                    mFileInputStream.close();
                     mDataOutputStream.close();
                 }
             } catch (Exception e) {

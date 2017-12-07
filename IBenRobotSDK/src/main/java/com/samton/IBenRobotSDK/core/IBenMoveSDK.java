@@ -12,6 +12,11 @@ import com.slamtec.slamware.SlamwareCorePlatform;
 import com.slamtec.slamware.action.ActionStatus;
 import com.slamtec.slamware.action.IMoveAction;
 import com.slamtec.slamware.action.MoveDirection;
+import com.slamtec.slamware.exceptions.ConnectionFailException;
+import com.slamtec.slamware.exceptions.ConnectionTimeOutException;
+import com.slamtec.slamware.exceptions.RequestFailException;
+import com.slamtec.slamware.exceptions.UnauthorizedRequestException;
+import com.slamtec.slamware.exceptions.UnsupportedCommandException;
 import com.slamtec.slamware.geometry.PointF;
 import com.slamtec.slamware.geometry.Size;
 import com.slamtec.slamware.robot.Location;
@@ -171,14 +176,22 @@ public final class IBenMoveSDK {
      * 唤醒雷达
      */
     public void wakeUp() {
-        mRobotPlatform.wakeUp();
+        try {
+            mRobotPlatform.wakeUp();
+        } catch (Throwable throwable){
+            onRequestError(throwable);
+        }
     }
 
     /**
      * 回充电桩
      */
     public void goHome() {
-        mRobotPlatform.goHome();
+        try {
+            mRobotPlatform.goHome();
+        } catch (Throwable throwable){
+            onRequestError(throwable);
+        }
     }
 
     /**
@@ -305,7 +318,12 @@ public final class IBenMoveSDK {
      */
     public void setMapUpdate(boolean isUpdate) {
         if (mRobotPlatform != null) {
-            mRobotPlatform.setMapUpdate(isUpdate);
+            try {
+                mRobotPlatform.setMapUpdate(isUpdate);
+            }catch (Throwable throwable){
+                onRequestError(throwable);
+            }
+
         } else {
             onRequestError(new Exception("机器人连接失败"));
         }
@@ -316,7 +334,11 @@ public final class IBenMoveSDK {
      */
     public void removeMap(){
         if (mRobotPlatform != null) {
-            mRobotPlatform.clearMap();
+            try {
+                mRobotPlatform.clearMap();
+            }catch (Throwable throwable){
+                onRequestError(throwable);
+            }
         } else {
             onRequestError(new Exception("机器人连接失败"));
         }
@@ -516,7 +538,12 @@ public final class IBenMoveSDK {
      */
     public Location getLocation() {
         if (mRobotPlatform != null) {
-            return mRobotPlatform.getLocation();
+            try {
+                return mRobotPlatform.getLocation();
+            }catch (Throwable throwable){
+                onRequestError(throwable);
+                return null;
+            }
         } else {
             onRequestError(new Exception("机器人连接失败"));
             return null;
@@ -750,7 +777,13 @@ public final class IBenMoveSDK {
             MapType mapType = MapType.BITMAP_8BIT;
             // 地图种类为扫描建图
             MapKind mapKind = MapKind.EXPLORE_MAP;
-            return mRobotPlatform.getMap(mapType, mapKind, mRobotPlatform.getKnownArea(mapType));
+            try {
+                return mRobotPlatform.getMap(mapType, mapKind, mRobotPlatform.getKnownArea(mapType));
+            }catch (Throwable throwable){
+                onRequestError(throwable);
+                return null;
+            }
+
         } else {
             onRequestError(new Exception("机器人连接失败"));
             return null;
@@ -764,7 +797,11 @@ public final class IBenMoveSDK {
      */
     private void setMap(Map map) {
         if (mRobotPlatform != null) {
-            mRobotPlatform.setMap(map);
+            try {
+                mRobotPlatform.setMap(map);
+            }catch (Throwable throwable){
+                onRequestError(new Exception("机器人连接失败"));
+            }
         } else {
             onRequestError(new Exception("机器人连接失败"));
         }

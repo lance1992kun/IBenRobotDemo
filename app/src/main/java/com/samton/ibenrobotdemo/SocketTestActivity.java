@@ -290,7 +290,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     public void onSuccess() {
                         File file = new File(Constants.MAP_PATH + "/" + content);
                         // 定点信息
-                        String savedLocations = CacheUtils.getInstance().getString(content);
+                        String savedLocations = mLocations;
                         if (TextUtils.isEmpty(savedLocations)) {
                             savedLocations = "[]";
                         }
