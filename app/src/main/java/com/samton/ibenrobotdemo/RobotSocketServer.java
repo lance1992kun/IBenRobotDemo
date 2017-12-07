@@ -2,6 +2,7 @@ package com.samton.ibenrobotdemo;
 
 import android.text.TextUtils;
 
+import com.samton.IBenRobotSDK.utils.FileIOUtils;
 import com.samton.IBenRobotSDK.utils.FileUtils;
 import com.samton.IBenRobotSDK.utils.LogUtils;
 import com.samton.IBenRobotSDK.utils.NetworkUtils;
@@ -145,23 +146,28 @@ public class RobotSocketServer {
      */
     public void sendMap(File file) {
         DataOutputStream mDataOutputStream;
-        FileInputStream mFileInputStream;
+//        FileInputStream mFileInputStream;
         if (!mLastSocket.isClosed() && mLastSocket.isConnected()) {
             try {
-                mFileInputStream = new FileInputStream(file);
+//                mFileInputStream = new FileInputStream(file);
                 mDataOutputStream = new DataOutputStream(mLastSocket.getOutputStream());
                 if (FileUtils.isFileExists(file)) {
                     // 开始传输文件
                     LogUtils.e("开始传输文件");
-                    byte[] bytes = new byte[1024];
-                    int length;
-                    while ((length = mFileInputStream.read(bytes, 0, bytes.length)) != -1) {
-                        mDataOutputStream.write(bytes, 0, length);
+//                    byte[] bytes = new byte[1024];
+//                    int length;
+//                    while ((length = mFileInputStream.read(bytes, 0, bytes.length)) != -1) {
+//                        mDataOutputStream.write(bytes, 0, length);
+//                        mDataOutputStream.flush();
+//                    }
+                    byte[] bytes1 = FileIOUtils.readFile2BytesByChannel(file);
+                    if (bytes1 != null) {
+                        mDataOutputStream.write(bytes1);
                         mDataOutputStream.flush();
                     }
                     LogUtils.e("传输文件完成");
                     // 关闭流
-                    mFileInputStream.close();
+//                    mFileInputStream.close();
                     mDataOutputStream.close();
                 }
             } catch (Exception e) {
