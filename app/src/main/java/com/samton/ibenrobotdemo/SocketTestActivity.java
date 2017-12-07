@@ -26,6 +26,7 @@ import com.slamtec.slamware.action.ActionStatus;
 import com.slamtec.slamware.action.MoveDirection;
 import com.slamtec.slamware.robot.Location;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,7 +59,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
     private IBenMoveSDK moveSDK;
     private PwmMotor mPwmMotor;
     private EditText mIpEdit;
-    private String mLocations;
+    private JSONArray uploadArray;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -289,32 +290,36 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     @Override
                     public void onSuccess() {
                         File file = new File(Constants.MAP_PATH + "/" + content);
+                        File thumbFile = new File(Constants.MAP_PATH_THUMB + "/" + content);
                         // 定点信息
-                        String savedLocations = mLocations;
-                        if (TextUtils.isEmpty(savedLocations)) {
-                            savedLocations = "[]";
+                        String mLocations = uploadArray.toString();
+                        if (TextUtils.isEmpty(mLocations)) {
+                            mLocations = "[]";
                         }
+                        final String finalLocations = mLocations;
                         // 地图文件体
-                        RequestBody fileRequestBody = RequestBody.create(MediaType.parse("image/*"), file);
+                        RequestBody fileRequestBody = RequestBody.create(MediaType.parse("*/*"), file);
                         MultipartBody.Part filePart = MultipartBody.Part.createFormData("file",
                                 file.getName(), fileRequestBody);
                         // 地图缩略图文件
-                        RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("image/*"), file);
+                        RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("image/*"), thumbFile);
                         MultipartBody.Part imgFilePart = MultipartBody.Part.createFormData("imgFile",
-                                file.getName(), imageFileRequestBody);
+                                thumbFile.getName(), imageFileRequestBody);
                         HttpUtil.getInstance().create(APIService.class)
                                 .addScene(RequestBody.create(null, "9aabd5edb430460c9582769041bd2539"),
                                         RequestBody.create(null, content),
-                                        RequestBody.create(null, savedLocations),
+                                        RequestBody.create(null, finalLocations),
                                         filePart, imgFilePart)
                                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new Consumer<UploadMapBean>() {
                                     @Override
                                     public void accept(UploadMapBean uploadMapBean) throws Exception {
                                         if (uploadMapBean.getRs() == 1) {
-                                            CacheUtils.getInstance().put(content, mLocations);
-                                            mLocations = null;
+                                            CacheUtils.getInstance().put(content, finalLocations);
+                                            uploadArray = null;
                                             mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图成功"));
+                                        } else {
+                                            mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图失败"));
                                         }
                                     }
                                 }, new Consumer<Throwable>() {
@@ -339,14 +344,13 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     try {
                         String location = currentLocation.getX() + ","
                                 + currentLocation.getY() + "," + currentLocation.getZ();
-                        JSONObject object;
-                        if (TextUtils.isEmpty(mLocations)) {
-                            object = new JSONObject();
-                        } else {
-                            object = new JSONObject(mLocations);
+                        JSONObject object = new JSONObject();
+                        object.put("name", content);
+                        object.put("location", location);
+                        if (uploadArray == null) {
+                            uploadArray = new JSONArray();
                         }
-                        object.put(content, location);
-                        mLocations = object.toString();
+                        uploadArray.put(object);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -357,32 +361,19 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                 break;
             // 移除指定点
             case "removeLocation":
-                try {
-                    JSONObject removeObject = new JSONObject(mLocations);
-                    removeObject.remove(content);
-                    mLocations = removeObject.toString();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (removePoint(content)) {
                     mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点失败"));
+                } else {
+                    mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点成功"));
                 }
-                mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点成功"));
                 break;
             // 修改指定点
             case "editLocation":
-                String[] editPoints = content.split(",");
-                String oldName = editPoints[0];
-                String newName = editPoints[1];
-                try {
-                    JSONObject editObject = new JSONObject(mLocations);
-                    String oldContent = editObject.optString(oldName);
-                    editObject.remove(oldName);
-                    editObject.put(newName, oldContent);
-                    mLocations = editObject.toString();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (editPoint(content)) {
+                    mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点成功"));
+                } else {
                     mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点失败"));
                 }
-                mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点成功"));
                 break;
             // 回充电桩
             case "goHome":
@@ -477,5 +468,60 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                 mPwmMotor.head2Right();
                 break;
         }
+    }
+
+    /**
+     * 根据名字删除点
+     *
+     * @param content 名字
+     * @return 成功是否失败
+     */
+    private boolean removePoint(String content) {
+        boolean isSuccess = false;
+        if (uploadArray != null) {
+            for (int i = 0; i < uploadArray.length(); i++) {
+                JSONObject removeObject = uploadArray.optJSONObject(i);
+                if (removeObject.has(content)) {
+                    uploadArray.remove(i);
+                    isSuccess = true;
+                    break;
+                }
+            }
+        }
+        return isSuccess;
+    }
+
+    /**
+     * 根据信息更改
+     *
+     * @param content 信息
+     * @return 成功与否
+     */
+    private boolean editPoint(String content) {
+        boolean isSuccess = false;
+        String[] editPoints = content.split(",");
+        String oldName = editPoints[0];
+        String newName = editPoints[1];
+        String oldContent = null;
+        int index = -1;
+        if (uploadArray != null) {
+            for (int i = 0; i < uploadArray.length(); i++) {
+                JSONObject removeObject = uploadArray.optJSONObject(i);
+                if (removeObject.has(oldName)) {
+                    index = i;
+                    oldContent = removeObject.optString(oldName);
+                    break;
+                }
+            }
+            try {
+                JSONObject editObject = new JSONObject();
+                editObject.put(newName, oldContent);
+                uploadArray.remove(index);
+                isSuccess = true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return isSuccess;
     }
 }
