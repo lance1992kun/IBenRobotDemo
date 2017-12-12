@@ -12,17 +12,14 @@ import com.slamtec.slamware.SlamwareCorePlatform;
 import com.slamtec.slamware.action.ActionStatus;
 import com.slamtec.slamware.action.IMoveAction;
 import com.slamtec.slamware.action.MoveDirection;
-import com.slamtec.slamware.exceptions.ConnectionFailException;
-import com.slamtec.slamware.exceptions.ConnectionTimeOutException;
-import com.slamtec.slamware.exceptions.RequestFailException;
-import com.slamtec.slamware.exceptions.UnauthorizedRequestException;
-import com.slamtec.slamware.exceptions.UnsupportedCommandException;
 import com.slamtec.slamware.geometry.PointF;
 import com.slamtec.slamware.geometry.Size;
 import com.slamtec.slamware.robot.Location;
 import com.slamtec.slamware.robot.Map;
 import com.slamtec.slamware.robot.MapKind;
 import com.slamtec.slamware.robot.MapType;
+import com.slamtec.slamware.robot.MoveOption;
+import com.slamtec.slamware.robot.Pose;
 import com.slamtec.slamware.robot.Rotation;
 
 import org.json.JSONObject;
@@ -89,6 +86,14 @@ public final class IBenMoveSDK {
      * 记录端口
      */
     private int mPort = 0;
+    /**
+     * 重连计时器
+     */
+    private Disposable mReconnectTimer = null;
+    /**
+     * 当前姿态对象
+     */
+    private Pose mCurrentPose = null;
 
     /**
      * 机器人连接回调
@@ -178,8 +183,8 @@ public final class IBenMoveSDK {
     public void wakeUp() {
         try {
             mRobotPlatform.wakeUp();
-        } catch (Throwable throwable){
-            onRequestError(throwable);
+        } catch (Throwable throwable) {
+            onRequestError();
         }
     }
 
@@ -189,24 +194,24 @@ public final class IBenMoveSDK {
     public void goHome() {
         try {
             mRobotPlatform.goHome();
-        } catch (Throwable throwable){
-            onRequestError(throwable);
+        } catch (Throwable throwable) {
+            onRequestError();
         }
     }
 
     /**
      * 请求失败
-     *
-     * @param e 异常信息
      */
-    private void onRequestError(Throwable e) {
+    private void onRequestError() {
         cancelTimedAction();
-        LogUtils.e(e.getMessage());
-        synchronized (this) {
-            mRobotPlatform = null;
-            isConnected = false;
+        if (isConnected) {
+            cancelAllActions();
         }
-        mCallBack.onConnectFailed();
+//        synchronized (this) {
+//            mRobotPlatform = null;
+//            isConnected = false;
+//        }
+//        mCallBack.onConnectFailed();
     }
 
     /**
@@ -250,20 +255,25 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.single()).observeOn(Schedulers.single()).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (aBoolean) {
+                        if (mReconnectTimer != null && !mReconnectTimer.isDisposed()) {
+                            mReconnectTimer.dispose();
+                            mReconnectTimer = null;
+                        }
                         isConnected = true;
                         mCallBack.onConnectSuccess();
                     } else {
-                        onRequestError(new Exception("机器人连接失败"));
+                        isConnected = false;
+                        mCallBack.onConnectFailed();
                     }
                 }
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         }
@@ -274,7 +284,19 @@ public final class IBenMoveSDK {
      * 重连机器人
      */
     public void reconnect() {
-        connectRobot(mIp, mPort, mCallBack);
+        if (mReconnectTimer == null) {
+            mReconnectTimer = Observable.interval(0, 3000, TimeUnit.MILLISECONDS)
+                    .observeOn(Schedulers.single()).subscribe(new Consumer<Long>() {
+                        @Override
+                        public void accept(@NonNull Long aLong) throws Exception {
+                            connectRobot(mIp, mPort, mCallBack);
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                        }
+                    });
+        }
     }
 
     /**
@@ -293,21 +315,21 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.single()).observeOn(Schedulers.single()).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                     }
                 }
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
@@ -320,34 +342,32 @@ public final class IBenMoveSDK {
         if (mRobotPlatform != null) {
             try {
                 mRobotPlatform.setMapUpdate(isUpdate);
-            }catch (Throwable throwable){
-                onRequestError(throwable);
+            } catch (Throwable throwable) {
+                onRequestError();
             }
 
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
     /**
      * 清楚地图
      */
-    public void removeMap(){
+    public void removeMap() {
         if (mRobotPlatform != null) {
             try {
                 mRobotPlatform.clearMap();
-            }catch (Throwable throwable){
-                onRequestError(throwable);
+            } catch (Throwable throwable) {
+                onRequestError();
             }
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
     /**
      * 获取电量百分比
-     *
-     * @return 电量信息
      */
     public void getBatteryInfo(final GetBatteryCallBack callBack) {
         if (mRobotPlatform != null) {
@@ -370,7 +390,7 @@ public final class IBenMoveSDK {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                         callBack.onFailed();
                     } else {
                         callBack.onSuccess(mBatteryInfo);
@@ -379,11 +399,11 @@ public final class IBenMoveSDK {
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
             callBack.onFailed();
             mBatteryInfo = "";
         }
@@ -412,17 +432,17 @@ public final class IBenMoveSDK {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                     }
                 }
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
 
     }
@@ -445,17 +465,17 @@ public final class IBenMoveSDK {
                             try {
                                 mRobotPlatform.moveBy(moveDirection);
                             } catch (Throwable throwable) {
-                                onRequestError(throwable);
+                                onRequestError();
                             }
                         }
                     }, new Consumer<Throwable>() {
                         @Override
                         public void accept(@NonNull Throwable throwable) throws Exception {
-                            onRequestError(throwable);
+                            onRequestError();
                         }
                     });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
@@ -482,17 +502,17 @@ public final class IBenMoveSDK {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                     }
                 }
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
@@ -519,37 +539,59 @@ public final class IBenMoveSDK {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                     }
                 }
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
     /**
      * 获取当前点坐标
+     *
+     * @return 当前点坐标
      */
     public Location getLocation() {
         if (mRobotPlatform != null) {
             try {
                 return mRobotPlatform.getLocation();
-            }catch (Throwable throwable){
-                onRequestError(throwable);
+            } catch (Throwable throwable) {
+                onRequestError();
                 return null;
             }
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
             return null;
         }
 
     }
+
+    /**
+     * 获取机器人姿态
+     *
+     * @return 当前点姿态
+     */
+    public Pose getPose() {
+        if (mRobotPlatform != null) {
+            try {
+                return mRobotPlatform.getPose();
+            } catch (Throwable throwable) {
+                onRequestError();
+                return null;
+            }
+        } else {
+            onRequestError();
+            return null;
+        }
+    }
+
 
     /**
      * 行走到指定点
@@ -562,8 +604,12 @@ public final class IBenMoveSDK {
                 @Override
                 public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
                     try {
-                        moveAction = mRobotPlatform.moveTo(location);
-                        e.onNext(true);
+                        if (location != null) {
+                            MoveOption option = new MoveOption();
+                            option.setSpeed(0.3);
+                            moveAction = mRobotPlatform.moveTo(location, option);
+                            e.onNext(true);
+                        }
                     } catch (Throwable throwable) {
                         e.onNext(false);
                     }
@@ -572,7 +618,7 @@ public final class IBenMoveSDK {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                     } else {
                         while (true) {
                             if (moveAction != null) {
@@ -591,11 +637,48 @@ public final class IBenMoveSDK {
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
+        }
+    }
+
+    /**
+     * 设置机器人的姿态
+     *
+     * @param pose 当前姿态
+     */
+    public void setPose(final Pose pose) {
+        if (pose != null) {
+            if (mRobotPlatform != null) {
+                Observable.create(new ObservableOnSubscribe<Boolean>() {
+                    @Override
+                    public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
+                        try {
+                            mRobotPlatform.setPose(pose);
+                            e.onNext(true);
+                        } catch (Throwable throwable) {
+                            e.onNext(false);
+                        }
+                    }
+                }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                        if (!aBoolean) {
+                            onRequestError();
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        onRequestError();
+                    }
+                });
+            } else {
+                onRequestError();
+            }
         }
     }
 
@@ -614,21 +697,21 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.single()).observeOn(Schedulers.single()).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
-                        onRequestError(new Exception("机器人连接失败"));
+                        onRequestError();
                     }
                 }
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(@NonNull Throwable throwable) throws Exception {
-                    onRequestError(throwable);
+                    onRequestError();
                 }
             });
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
@@ -684,7 +767,7 @@ public final class IBenMoveSDK {
                     e.onNext(false);
                 }
             }
-        }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+        }).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
                 if (aBoolean) {
@@ -749,7 +832,7 @@ public final class IBenMoveSDK {
                     e.onNext(false);
                 }
             }
-        }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+        }).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
                 if (aBoolean) {
@@ -779,13 +862,13 @@ public final class IBenMoveSDK {
             MapKind mapKind = MapKind.EXPLORE_MAP;
             try {
                 return mRobotPlatform.getMap(mapType, mapKind, mRobotPlatform.getKnownArea(mapType));
-            }catch (Throwable throwable){
-                onRequestError(throwable);
+            } catch (Throwable throwable) {
+                onRequestError();
                 return null;
             }
 
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
             return null;
         }
     }
@@ -799,11 +882,11 @@ public final class IBenMoveSDK {
         if (mRobotPlatform != null) {
             try {
                 mRobotPlatform.setMap(map);
-            }catch (Throwable throwable){
-                onRequestError(new Exception("机器人连接失败"));
+            } catch (Throwable throwable) {
+                onRequestError();
             }
         } else {
-            onRequestError(new Exception("机器人连接失败"));
+            onRequestError();
         }
     }
 
