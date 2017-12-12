@@ -92,6 +92,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
             @Override
             public void onConnectFailed() {
                 Observable.timer(5, TimeUnit.SECONDS)
+                        .take(3)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Consumer<Long>() {
                             @Override
