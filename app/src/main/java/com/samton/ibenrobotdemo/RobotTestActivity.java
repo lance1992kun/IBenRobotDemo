@@ -13,6 +13,10 @@ import com.samton.IBenRobotSDK.core.MainSDK;
 import com.samton.IBenRobotSDK.utils.ToastUtils;
 import com.slamtec.slamware.action.MoveDirection;
 
+import static com.slamtec.slamware.action.MoveDirection.BACKWARD;
+import static com.slamtec.slamware.action.MoveDirection.TURN_LEFT;
+import static com.slamtec.slamware.action.MoveDirection.TURN_RIGHT;
+
 /**
  * <pre>
  *     author : syk
@@ -138,13 +142,13 @@ public class RobotTestActivity extends AppCompatActivity implements View.OnClick
                 }
                 break;
             case R.id.mLeftBtn:
-                moveSDK.moveByDirection(MoveDirection.TURN_LEFT, 100);
+                moveSDK.moveByDirection(TURN_LEFT, 100);
                 break;
             case R.id.mRightBtn:
-                moveSDK.moveByDirection(MoveDirection.TURN_RIGHT, 100);
+                moveSDK.moveByDirection(TURN_RIGHT, 100);
                 break;
             case R.id.mBackBtn:
-                moveSDK.moveByDirection(MoveDirection.BACKWARD, 100);
+                moveSDK.moveByDirection(BACKWARD, 100);
                 break;
             case R.id.mForwardBtn:
                 moveSDK.moveByDirection(MoveDirection.FORWARD, 100);

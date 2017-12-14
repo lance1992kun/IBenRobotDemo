@@ -174,7 +174,6 @@ public final class IBenMoveSDK {
      * 私有构造
      */
     private IBenMoveSDK() {
-
     }
 
     /**
@@ -520,6 +519,40 @@ public final class IBenMoveSDK {
     }
 
     /**
+     * 旋转机器人
+     * @param rotation 角度
+     */
+    public void rotate(final Rotation rotation){
+        if (mRobotPlatform != null) {
+            Observable.create(new ObservableOnSubscribe<Boolean>() {
+                @Override
+                public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
+                    try {
+                        mRobotPlatform.rotate(rotation);
+                        e.onNext(true);
+                    } catch (Throwable throwable) {
+                        e.onNext(false);
+                    }
+                }
+            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+                @Override
+                public void accept(@NonNull Boolean aBoolean) throws Exception {
+                    if (!aBoolean) {
+                        onRequestError();
+                    }
+                }
+            }, new Consumer<Throwable>() {
+                @Override
+                public void accept(@NonNull Throwable throwable) throws Exception {
+                    onRequestError();
+                }
+            });
+        } else {
+            onRequestError();
+        }
+    }
+
+    /**
      * 停止所有动作
      */
     public void cancelAllActions() {
@@ -653,7 +686,7 @@ public final class IBenMoveSDK {
      *
      * @param pose 当前姿态
      */
-    public void setPose(final Pose pose) {
+    private void setPose(final Pose pose) {
         if (pose != null) {
             if (mRobotPlatform != null) {
                 Observable.create(new ObservableOnSubscribe<Boolean>() {

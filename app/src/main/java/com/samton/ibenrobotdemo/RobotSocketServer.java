@@ -10,7 +10,6 @@ import com.samton.IBenRobotSDK.utils.NetworkUtils;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -65,53 +64,59 @@ public class RobotSocketServer {
      * 开启本地监听
      */
     public void startServer() {
-        Observable.create(new ObservableOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
-                try {
-                    mServerSocket = new ServerSocket(mPort);
-                    LogUtils.e("本地SOCKET已经开启IP>>>" + NetworkUtils.getIPAddress(true) + "端口为>>>" + mPort);
-                    while (true) {
-                        // 判断服务器是否关闭
-                        if (mServerSocket.isClosed()) {
-                            return;
-                        }
-                        // 接受客户端请求
-                        mLastSocket = mServerSocket.accept();
-                        LogUtils.e("连接的Socket>>>" + mLastSocket.getInetAddress());
-                        try {
-                            String readResult;
-                            // 输入流>>>用于接收客户端信息
-                            BufferedReader mReader = new BufferedReader(new InputStreamReader(mLastSocket.getInputStream()));
-                            while (true) {
-                                // 读取客户端发送过来的信息
-                                readResult = mReader.readLine();
-                                if (!TextUtils.isEmpty(readResult)) {
-                                    // 回调系统得到的客户端信息
-                                    mCallBack.onReceive(readResult);
-                                } else {
-                                    break;
+        if (mServerSocket == null) {
+            Observable.create(new ObservableOnSubscribe<Boolean>() {
+                @Override
+                public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
+                    try {
+                        mServerSocket = new ServerSocket(mPort);
+                        LogUtils.e("本地SOCKET已经开启IP>>>" + NetworkUtils.getIPAddress(true) + "端口为>>>" + mPort);
+                        while (!mServerSocket.isClosed()) {
+                            // 接受客户端请求
+                            if (mLastSocket == null) {
+                                mLastSocket = mServerSocket.accept();
+                            } else {
+                                if (mLastSocket.isClosed() || !mLastSocket.isConnected()) {
+                                    mLastSocket = mServerSocket.accept();
                                 }
                             }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            LogUtils.e("连接的Socket>>>" + mLastSocket.getInetAddress());
+                            try {
+                                String readResult;
+                                // 输入流>>>用于接收客户端信息
+                                BufferedReader mReader = new BufferedReader(new InputStreamReader(mLastSocket.getInputStream()));
+                                while ((readResult = mReader.readLine()) != null) {
+                                    // 读取客户端发送过来的信息
+                                    // readResult = mReader.readLine();
+                                    if (!TextUtils.isEmpty(readResult)) {
+                                        // 回调系统得到的客户端信息
+                                        mCallBack.onReceive(readResult);
+                                    }
+                                }
+                                mLastSocket.close();
+                                mLastSocket = null;
+                            } catch (Exception ex) {
+                                mLastSocket.close();
+                                ex.printStackTrace();
+                            }
                         }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
                 }
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                LogUtils.e(throwable.getMessage());
-            }
-        });
+            }).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new Consumer<Boolean>() {
+                @Override
+                public void accept(Boolean aBoolean) throws Exception {
+                }
+            }, new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) throws Exception {
+                    LogUtils.e(throwable.getMessage());
+                }
+            });
+        }
     }
+
 
     /**
      * 设置消息回调
@@ -146,7 +151,6 @@ public class RobotSocketServer {
      */
     public void sendMap(File file) {
         DataOutputStream mDataOutputStream;
-//        FileInputStream mFileInputStream;
         if (!mLastSocket.isClosed() && mLastSocket.isConnected()) {
             try {
                 mDataOutputStream = new DataOutputStream(mLastSocket.getOutputStream());
