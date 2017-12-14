@@ -352,7 +352,7 @@ public final class IBenMoveSDK {
     }
 
     /**
-     * 清楚地图
+     * 清除地图
      */
     public void removeMap() {
         if (mRobotPlatform != null) {
@@ -367,7 +367,8 @@ public final class IBenMoveSDK {
     }
 
     /**
-     * 获取电量百分比
+     * 获取电池信息
+     * @param callBack 电池信息回调
      */
     public void getBatteryInfo(final GetBatteryCallBack callBack) {
         if (mRobotPlatform != null) {
@@ -485,6 +486,8 @@ public final class IBenMoveSDK {
      * @param angle 需要旋转的角度
      */
     public void rotate(double angle) {
+        // 首先清除掉定时器
+        cancelTimedAction();
         float tempAngle = (float) (angle / 180 * Math.PI);
         final Rotation rotation = new Rotation(tempAngle);
         if (mRobotPlatform != null) {
