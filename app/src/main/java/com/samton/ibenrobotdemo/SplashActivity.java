@@ -44,7 +44,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         mAvailableIps = new SparseArray<>();
         mAvailableIndex = 0;
         initView();
-        initData();
+        //initData();
     }
 
     private void initView() {

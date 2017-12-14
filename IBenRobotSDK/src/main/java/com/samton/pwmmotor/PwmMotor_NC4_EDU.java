@@ -10,7 +10,7 @@ package com.samton.pwmmotor;
  * </pre>
  */
 
-public class PwmMotor {
+public class PwmMotor_NC4_EDU {
 
     /**
      * 周期
@@ -63,18 +63,18 @@ public class PwmMotor {
     /**
      * 舵机管理器单例对象
      */
-    private static PwmMotor instance = new PwmMotor();
+    private static PwmMotor_NC4_EDU instance = new PwmMotor_NC4_EDU();
 
     /**
      * 获取舵机管理器单例
      *
      * @return 舵机管理器单例
      */
-    public static PwmMotor getInstance() {
+    public static PwmMotor_NC4_EDU getInstance() {
         if (instance == null) {
-            synchronized (PwmMotor.class) {
+            synchronized (PwmMotor_NC4_EDU.class) {
                 if (instance == null) {
-                    instance = new PwmMotor();
+                    instance = new PwmMotor_NC4_EDU();
                 }
             }
         }
@@ -84,7 +84,7 @@ public class PwmMotor {
     /**
      * 私有构造
      */
-    private PwmMotor() {
+    private PwmMotor_NC4_EDU() {
     }
 
     /**

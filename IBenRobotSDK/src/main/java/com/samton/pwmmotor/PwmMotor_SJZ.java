@@ -5,12 +5,12 @@ package com.samton.pwmmotor;
  *   author  : syk
  *   e-mail  : shenyukun1024@gmail.com
  *   time    : 2017/12/12 16:22
- *   desc    : 舵机管理器(样机 - 测试机器人2——发往南昌教育)
+ *   desc    : 舵机管理器(样机 - 测试机器人3——发往石家庄)
  *   version : 1.0
  * </pre>
  */
 
-public class PwmMotor {
+public class PwmMotor_SJZ {
 
     /**
      * 周期
@@ -19,19 +19,19 @@ public class PwmMotor {
     /**
      * 左手垂直时间点
      */
-    private final static double LEFT_ARM_VERTICAL = 1.4 * 1000000;
+    private final static double LEFT_ARM_VERTICAL = 1.7 * 1000000;
     /**
      * 左手水平时间点
      */
-    private final static double LEFT_ARM_HORIZONTAL = 2.0 * 1000000;
+    private final static double LEFT_ARM_HORIZONTAL = 2.3 * 1000000;
     /**
      * 右手垂直时间点
      */
-    private final static double RIGHT_ARM_VERTICAL = 2.2 * 1000000;
+    private final static double RIGHT_ARM_VERTICAL = 1.3 * 1000000;
     /**
      * 右手水平时间点
      */
-    private final static double RIGHT_ARM_HORIZONTAL = 1.6 * 1000000;
+    private final static double RIGHT_ARM_HORIZONTAL = 1.9 * 1000000;
     /**
      * 头部左侧时间点
      */
@@ -63,18 +63,18 @@ public class PwmMotor {
     /**
      * 舵机管理器单例对象
      */
-    private static PwmMotor instance = new PwmMotor();
+    private static PwmMotor_SJZ instance = new PwmMotor_SJZ();
 
     /**
      * 获取舵机管理器单例
      *
      * @return 舵机管理器单例
      */
-    public static PwmMotor getInstance() {
+    public static PwmMotor_SJZ getInstance() {
         if (instance == null) {
             synchronized (PwmMotor.class) {
                 if (instance == null) {
-                    instance = new PwmMotor();
+                    instance = new PwmMotor_SJZ();
                 }
             }
         }
@@ -84,7 +84,7 @@ public class PwmMotor {
     /**
      * 私有构造
      */
-    private PwmMotor() {
+    private PwmMotor_SJZ() {
     }
 
     /**
