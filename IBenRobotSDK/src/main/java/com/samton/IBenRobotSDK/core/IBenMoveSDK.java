@@ -459,7 +459,7 @@ public final class IBenMoveSDK {
         final MoveDirection moveDirection = direction;
         if (moveDirection != null && mRobotPlatform != null) {
             mDisposable = Observable.interval(0, period, TimeUnit.MILLISECONDS)
-                    .observeOn(Schedulers.newThread()).subscribe(new Consumer<Long>() {
+                    .observeOn(Schedulers.computation()).subscribe(new Consumer<Long>() {
                         @Override
                         public void accept(@NonNull Long aLong) throws Exception {
                             try {

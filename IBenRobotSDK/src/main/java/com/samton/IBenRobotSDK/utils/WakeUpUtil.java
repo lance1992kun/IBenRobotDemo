@@ -77,8 +77,7 @@ public class WakeUpUtil {
             mDisposable = null;
         }
         mDisposable = Observable.interval(20, TimeUnit.MILLISECONDS)
-                // 每隔20毫秒读取一次串口
-                .doOnNext(new Consumer<Long>() {
+                .observeOn(Schedulers.io()).subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(@NonNull Long aLong) throws Exception {
                         // 读取数据
@@ -93,9 +92,12 @@ public class WakeUpUtil {
                             }
                         }
                     }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io()).subscribe();
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+
+                    }
+                });
     }
 
     /**
