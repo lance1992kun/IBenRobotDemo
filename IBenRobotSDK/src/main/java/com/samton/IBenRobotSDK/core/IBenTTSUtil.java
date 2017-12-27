@@ -42,7 +42,9 @@ public final class IBenTTSUtil {
      * 初始化
      */
     public void init(Context mContext) {
-        mTTSManager = new TTSManager(mContext);
+        if (mTTSManager==null){
+            mTTSManager = new TTSManager(mContext);
+        }
     }
 
     /**

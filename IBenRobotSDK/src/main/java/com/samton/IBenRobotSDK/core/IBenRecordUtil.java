@@ -70,7 +70,9 @@ public final class IBenRecordUtil {
      * 初始化
      */
     public void init(Context mContext) {
-        mRecordManager = new RecordManager(mContext);
+        if (mRecordManager == null) {
+            mRecordManager = new RecordManager(mContext);
+        }
     }
 
     /**
