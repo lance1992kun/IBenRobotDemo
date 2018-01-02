@@ -32,7 +32,6 @@ import com.samton.IBenRobotSDK.print.PrintManager;
 import com.samton.IBenRobotSDK.utils.LogUtils;
 import com.samton.IBenRobotSDK.utils.ToastUtils;
 import com.samton.IBenRobotSDK.utils.WakeUpUtil;
-import com.samton.pwmmotor.PwmMotor;
 
 import net.posprinter.posprinterface.IMyBinder;
 import net.posprinter.service.PosprinterService;

@@ -1,4 +1,4 @@
-package android_serialport_api;
+package com.samton.serialport;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,24 +39,26 @@ public class SerialUtil {
     /**
      * 构造函数
      *
-     * @param path     串口的物理地址
-     * @param baudRate 波特率
-     * @param flags    标识位(不用管)
-     * @throws NullPointerException 物理地址不对抛出空指针异常
+     * @param path 串口的物理地址
      */
-    public SerialUtil(String path, int baudRate, int flags) throws NullPointerException {
-        try {
-            mSerialPort = new SerialPort(new File(path), baudRate, flags);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (mSerialPort != null) {
-            // 设置读、写
-            mInputStream = mSerialPort.getInputStream();
-            mOutputStream = mSerialPort.getOutputStream();
-        } else {
-            throw new NullPointerException("串口设置有误");
-        }
+    public SerialUtil(String path) {
+//        try {
+//            mSerialPort = new SerialPort(new File(path), baudRate, flags);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        if (mSerialPort != null) {
+//            // 设置读、写
+//            mInputStream = mSerialPort.getInputStream();
+//            mOutputStream = mSerialPort.getOutputStream();
+//        } else {
+//            throw new NullPointerException("串口设置有误");
+//        }
+        mSerialPort = new SerialPort();
+        mSerialPort.open(new File(path), SerialPort.BAUDRATE.B115200, SerialPort.STOPB.B1
+                , SerialPort.DATAB.CS8, SerialPort.PARITY.NONE, SerialPort.FLOWCON.NONE);
+        mInputStream = mSerialPort.getInputStream();
+        mOutputStream = mSerialPort.getOutputStream();
     }
 
     /**

@@ -1,17 +1,26 @@
 package com.samton.pwmmotor;
 
+import com.samton.IBenRobotSDK.utils.LogUtils;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+
 /**
  * <pre>
- *   author  : syk
- *   e-mail  : shenyukun1024@gmail.com
- *   time    : 2017/12/12 16:22
- *   desc    : 舵机管理器(样机 - 测试机器人2——发往南昌教育)
- *   version : 1.0
+ *     @author : syk
+ *     e-mail : shenyukun1024@gmail.com
+ *     time   : 2017/11/07
+ *     desc   : 舵机管理器(样机1)
+ *     version: 2.0
  * </pre>
  */
 
 public class PwmMotor {
-
     /**
      * 周期
      */
@@ -19,51 +28,67 @@ public class PwmMotor {
     /**
      * 左手垂直时间点
      */
-    private final static double LEFT_ARM_VERTICAL = 1.4 * 1000000;
+    private final static double LEFT_ARM_VERTICAL = 1.48 * 1000000;
     /**
      * 左手水平时间点
      */
-    private final static double LEFT_ARM_HORIZONTAL = 2.0 * 1000000;
+    private final static double LEFT_ARM_HORIZONTAL = 2.08 * 1000000;
     /**
      * 右手垂直时间点
      */
-    private final static double RIGHT_ARM_VERTICAL = 2.2 * 1000000;
+    private final static double RIGHT_ARM_VERTICAL = 2.04 * 1000000;
     /**
      * 右手水平时间点
      */
-    private final static double RIGHT_ARM_HORIZONTAL = 1.6 * 1000000;
+    private final static double RIGHT_ARM_HORIZONTAL = 1.46 * 1000000;
     /**
      * 头部左侧时间点
      */
-    private final static double HEAD_LEFT = 1.40 * 1000000;
-    /**
-     * 头部左侧回中间时间点
-     */
-    private final static double HEAD_LEFT_2_MIDDLE = 1.60 * 1000000;
+    private final static double HEAD_LEFT = 1.2 * 1000000;
     /**
      * 头部右侧时间点
      */
-    private final static double HEAD_RIGHT = 1.80 * 1000000;
+    private final static double HEAD_RIGHT = 2.0 * 1000000;
     /**
-     * 头部右侧回中间时间点
+     * 头部中间时间点
      */
-    private final static double HEAD_RIGHT_2_MIDDLE = 1.62 * 1000000;
-    /**
-     * 头部在左侧的常量值
-     */
-    private final static int POSITION_LEFT = 1;
-    /**
-     * 头部在中间的常量值
-     */
-    private final static int POSITION_MIDDLE = 0;
-    /**
-     * 头部在右侧的常量值
-     */
-    private final static int POSITION_RIGHT = 2;
+    private final static double HEAD_MIDDLE = 1.6 * 1000000;
     /**
      * 舵机管理器单例对象
      */
     private static PwmMotor instance = new PwmMotor();
+    /**
+     * 间隔时间(纳秒)
+     */
+    private final static int mPeriodNs = 20000;
+    /**
+     * 间隔时间(毫秒)
+     */
+    private final static int mPeriodMs = 16;
+    /**
+     * 左手缓冲值
+     */
+    private int tempLeftArm = (int) LEFT_ARM_VERTICAL;
+    /**
+     * 右手缓冲值
+     */
+    private int tempRightArm = (int) RIGHT_ARM_VERTICAL;
+    /**
+     * 头部缓冲值
+     */
+    private int tempHead = (int) HEAD_MIDDLE;
+    /**
+     * 头部计时器
+     */
+    private Disposable mHeadDisposable;
+    /**
+     * 左手计时器
+     */
+    private Disposable mLeftDisposable;
+    /**
+     * 右手计时器
+     */
+    private Disposable mRightDisposable;
 
     /**
      * 获取舵机管理器单例
@@ -106,7 +131,31 @@ public class PwmMotor {
      */
     public void leftArmUp() {
         // 调整3号舵机
-        config(3, (int) LEFT_ARM_HORIZONTAL, PERIOD_NS);
+        // config(3, (int) LEFT_ARM_HORIZONTAL, PERIOD_NS);
+        if (mLeftDisposable != null && !mLeftDisposable.isDisposed()) {
+            mLeftDisposable.dispose();
+        }
+        mLeftDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempLeftArm > LEFT_ARM_HORIZONTAL) {
+                            tempLeftArm -= mPeriodNs;
+                        } else {
+                            tempLeftArm += mPeriodNs;
+                        }
+                        if (tempLeftArm == LEFT_ARM_HORIZONTAL) {
+                            mLeftDisposable.dispose();
+                        }
+                        config(3, tempLeftArm, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
     /**
@@ -114,7 +163,31 @@ public class PwmMotor {
      */
     public void leftArmDown() {
         // 调整3号舵机
-        config(3, (int) LEFT_ARM_VERTICAL, PERIOD_NS);
+        // config(3, (int) LEFT_ARM_VERTICAL, PERIOD_NS);
+        if (mLeftDisposable != null && !mLeftDisposable.isDisposed()) {
+            mLeftDisposable.dispose();
+        }
+        mLeftDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempLeftArm > LEFT_ARM_VERTICAL) {
+                            tempLeftArm -= mPeriodNs;
+                        } else {
+                            tempLeftArm += mPeriodNs;
+                        }
+                        if (tempLeftArm == LEFT_ARM_VERTICAL) {
+                            mLeftDisposable.dispose();
+                        }
+                        config(3, tempLeftArm, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
     /**
@@ -122,7 +195,31 @@ public class PwmMotor {
      */
     public void rightArmUp() {
         // 调整2号舵机
-        config(2, (int) RIGHT_ARM_HORIZONTAL, PERIOD_NS);
+        // config(2, (int) RIGHT_ARM_HORIZONTAL, PERIOD_NS);
+        if (mRightDisposable != null && !mRightDisposable.isDisposed()) {
+            mRightDisposable.dispose();
+        }
+        mRightDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempRightArm > RIGHT_ARM_HORIZONTAL) {
+                            tempRightArm -= mPeriodNs;
+                        } else {
+                            tempRightArm += mPeriodNs;
+                        }
+                        if (tempRightArm == RIGHT_ARM_HORIZONTAL) {
+                            mRightDisposable.dispose();
+                        }
+                        config(2, tempRightArm, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
     /**
@@ -130,68 +227,127 @@ public class PwmMotor {
      */
     public void rightArmDown() {
         // 调整2号舵机
-        config(2, (int) RIGHT_ARM_VERTICAL, PERIOD_NS);
+        // config(2, (int) RIGHT_ARM_VERTICAL, PERIOD_NS);
+        if (mRightDisposable != null && !mRightDisposable.isDisposed()) {
+            mRightDisposable.dispose();
+        }
+        mRightDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempRightArm > RIGHT_ARM_VERTICAL) {
+                            tempRightArm -= mPeriodNs;
+                        } else {
+                            tempRightArm += mPeriodNs;
+                        }
+                        if (tempRightArm == RIGHT_ARM_VERTICAL) {
+                            mRightDisposable.dispose();
+                        }
+                        config(2, tempRightArm, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
     /**
      * 头部转向左侧
      */
     public void head2Left() {
-//        // 判断头部是否在左侧
-//        if (SPUtils.getInstance().getInt(ROBOT_HEAD_POSITION, POSITION_MIDDLE) != POSITION_LEFT) {
-//            // 修改状态
-//            SPUtils.getInstance().put(ROBOT_HEAD_POSITION, POSITION_LEFT);
-//            // 调整0号舵机
-//            config(0, (int) HEAD_LEFT, PERIOD_NS);
-//        }
         // 调整0号舵机
-        config(0, (int) HEAD_LEFT, PERIOD_NS);
+//        config(0, (int) HEAD_LEFT, PERIOD_NS);
+        if (mHeadDisposable != null && !mHeadDisposable.isDisposed()) {
+            mHeadDisposable.dispose();
+        }
+        mHeadDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempHead > HEAD_LEFT) {
+                            tempHead -= mPeriodNs;
+                        } else {
+                            tempHead += mPeriodNs;
+                        }
+                        if (tempHead == HEAD_LEFT) {
+                            mHeadDisposable.dispose();
+                        }
+                        config(0, tempHead, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
     /**
      * 头部转向右侧
      */
     public void head2Right() {
-//        // 判断头部是否在右侧
-//        if (SPUtils.getInstance().getInt(ROBOT_HEAD_POSITION, POSITION_MIDDLE) != POSITION_RIGHT) {
-//            // 修改状态
-//            SPUtils.getInstance().put(ROBOT_HEAD_POSITION, POSITION_RIGHT);
-//            // 调整0号舵机
-//            config(0, (int) HEAD_RIGHT, PERIOD_NS);
-//        }
         // 调整0号舵机
-        config(0, (int) HEAD_RIGHT, PERIOD_NS);
+//        config(0, (int) HEAD_RIGHT, PERIOD_NS);
+        if (mHeadDisposable != null && !mHeadDisposable.isDisposed()) {
+            mHeadDisposable.dispose();
+        }
+        mHeadDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempHead > HEAD_RIGHT) {
+                            tempHead -= mPeriodNs;
+                        } else {
+                            tempHead += mPeriodNs;
+                        }
+                        if (tempHead == HEAD_RIGHT) {
+                            mHeadDisposable.dispose();
+                        }
+                        config(0, tempHead, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
     /**
      * 头部转向中间
      */
     public void head2Middle() {
-//        int dutyNs = 0;
-//        // 判断头部当前位置
-//        switch (SPUtils.getInstance().getInt(ROBOT_HEAD_POSITION, POSITION_MIDDLE)) {
-//            // 中间
-//            case POSITION_MIDDLE:
-//                break;
-//            // 左侧
-//            case POSITION_LEFT:
-//                dutyNs = (int) HEAD_LEFT_2_MIDDLE;
-//                break;
-//            // 右侧
-//            case POSITION_RIGHT:
-//                dutyNs = (int) HEAD_RIGHT_2_MIDDLE;
-//                break;
-//            default:
-//                break;
-//        }
-//        if (dutyNs != 0) {
-//            // 标记舵机位置为头部
-//            SPUtils.getInstance().put(ROBOT_HEAD_POSITION, POSITION_MIDDLE);
-//            // 调整0号舵机
-//            config(0, dutyNs, PERIOD_NS);
-//        }
         // 调整0号舵机
-        config(0, (int) HEAD_LEFT_2_MIDDLE, PERIOD_NS);
+//        config(0, (int) HEAD_MIDDLE, PERIOD_NS);
+        if (mHeadDisposable != null && !mHeadDisposable.isDisposed()) {
+            mHeadDisposable.dispose();
+        }
+        mHeadDisposable = Observable.interval(mPeriodMs, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(@NonNull Long aLong) throws Exception {
+                        if (tempHead > HEAD_MIDDLE) {
+                            tempHead -= mPeriodNs;
+                        } else {
+                            tempHead += mPeriodNs;
+                        }
+                        if (tempHead == HEAD_MIDDLE) {
+                            mHeadDisposable.dispose();
+                        }
+                        config(0, tempHead, PERIOD_NS);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
     }
 
 
@@ -231,5 +387,4 @@ public class PwmMotor {
      * 功能：	失能Pwm Motor
      */
     private native int disable(int pwm_id);
-
 }

@@ -21,7 +21,6 @@ import com.samton.IBenRobotSDK.utils.NetworkUtils;
 import com.samton.ibenrobotdemo.data.UploadMapBean;
 import com.samton.ibenrobotdemo.net.APIService;
 import com.samton.ibenrobotdemo.net.HttpUtil;
-import com.samton.pwmmotor.PwmMotor;
 import com.slamtec.slamware.action.ActionStatus;
 import com.slamtec.slamware.action.MoveDirection;
 import com.slamtec.slamware.robot.Location;

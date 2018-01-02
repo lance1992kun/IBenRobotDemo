@@ -177,23 +177,16 @@ public final class IBenMoveSDK {
     }
 
     /**
-     * 唤醒雷达
-     */
-    public void wakeUp() {
-        try {
-            mRobotPlatform.wakeUp();
-        } catch (Throwable throwable) {
-            onRequestError();
-        }
-    }
-
-    /**
      * 回充电桩
      */
     public void goHome() {
-        try {
-            mRobotPlatform.goHome();
-        } catch (Throwable throwable) {
+        if (mRobotPlatform != null) {
+            try {
+                mRobotPlatform.goHome();
+            } catch (Throwable throwable) {
+                onRequestError();
+            }
+        } else {
             onRequestError();
         }
     }
@@ -210,7 +203,7 @@ public final class IBenMoveSDK {
 //            mRobotPlatform = null;
 //            isConnected = false;
 //        }
-//        mCallBack.onConnectFailed();
+        mCallBack.onConnectFailed();
     }
 
     /**
@@ -367,9 +360,10 @@ public final class IBenMoveSDK {
 
     /**
      * 获取电池信息
+     *
      * @param callBack 电池信息回调
      */
-    public void getBatteryInfo(final GetBatteryCallBack callBack) {
+    public void getBatteryInfo(@NonNull final GetBatteryCallBack callBack) {
         if (mRobotPlatform != null) {
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
@@ -520,9 +514,46 @@ public final class IBenMoveSDK {
 
     /**
      * 旋转机器人
+     *
      * @param rotation 角度
      */
-    public void rotate(final Rotation rotation){
+    public void rotate(final Rotation rotation) {
+        if (mRobotPlatform != null) {
+            Observable.create(new ObservableOnSubscribe<Boolean>() {
+                @Override
+                public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
+                    try {
+                        mRobotPlatform.rotate(rotation);
+                        e.onNext(true);
+                    } catch (Throwable throwable) {
+                        e.onNext(false);
+                    }
+                }
+            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+                @Override
+                public void accept(@NonNull Boolean aBoolean) throws Exception {
+                    if (!aBoolean) {
+                        onRequestError();
+                    }
+                }
+            }, new Consumer<Throwable>() {
+                @Override
+                public void accept(@NonNull Throwable throwable) throws Exception {
+                    onRequestError();
+                }
+            });
+        } else {
+            onRequestError();
+        }
+    }
+
+    /**
+     * 根据偏移量转动角度
+     *
+     * @param yaw 偏移量
+     */
+    public void rotate(float yaw) {
+        final Rotation rotation = new Rotation(yaw);
         if (mRobotPlatform != null) {
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
@@ -634,7 +665,7 @@ public final class IBenMoveSDK {
      *
      * @param location 定点对象
      */
-    public void go2Location(final Location location, final MoveCallBack callBack) {
+    public void go2Location(final Location location, @NonNull final MoveCallBack callBack) {
         if (mRobotPlatform != null) {
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override

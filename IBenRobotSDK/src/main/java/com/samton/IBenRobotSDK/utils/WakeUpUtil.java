@@ -1,14 +1,16 @@
 package com.samton.IBenRobotSDK.utils;
 
+import android.text.TextUtils;
+
 import com.samton.IBenRobotSDK.interfaces.IWakeUpCallBack;
+import com.samton.serialport.SerialUtil;
 
 import java.util.concurrent.TimeUnit;
 
-import android_serialport_api.SerialUtil;
 import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -33,11 +35,7 @@ public class WakeUpUtil {
     /**
      * 读写回显定时器
      */
-    private Disposable mDisposable = null;
-//    /**
-//     * 读取线程
-//     */
-//     private ReadThread mReadThread = null;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
     /**
      * 唤醒回调
      */
@@ -59,7 +57,7 @@ public class WakeUpUtil {
         // 打开串口
         try {
             // 设置串口号、波特率，
-            mSerialUtil = new SerialUtil("/dev/ttyS3", 115200, 0);
+            mSerialUtil = new SerialUtil("/dev/ttyS3");
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -72,32 +70,13 @@ public class WakeUpUtil {
      */
     public void setCallBack(@NonNull final IWakeUpCallBack callBack) {
         this.callBack = callBack;
-        if (mDisposable != null && mDisposable.isDisposed()) {
-            mDisposable.dispose();
-            mDisposable = null;
-        }
-        mDisposable = Observable.interval(20, TimeUnit.MILLISECONDS)
-                .observeOn(Schedulers.io()).subscribe(new Consumer<Long>() {
-                    @Override
-                    public void accept(@NonNull Long aLong) throws Exception {
-                        // 读取数据
-                        byte[] data = mSerialUtil.getDataByte();
-                        // 不为空的话进行回写
-                        if (data != null) {
-                            String result = new String(data);
-                            int index = result.indexOf("angle");
-                            if (index > 0) {
-                                result = result.substring(index + 6, index + 9);
-                                callBack.onWakeUp(result, false);
-                            }
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-
-                    }
-                });
+        // 清空计时器
+        mCompositeDisposable.clear();
+        DisposableObserver<Long> mReadObserver = getReadTimer();
+        Observable.interval(0, 20, TimeUnit.MILLISECONDS)
+                .observeOn(Schedulers.io()).subscribe(mReadObserver);
+        // 新加计时器
+        mCompositeDisposable.add(mReadObserver);
     }
 
     /**
@@ -129,5 +108,46 @@ public class WakeUpUtil {
         mSerialUtil.setData("RESET\r".getBytes());
         // 置空回调
         callBack = null;
+        // 清空回显定时器
+        // mCompositeDisposable.clear();
+    }
+
+    /**
+     * 创建定时回写线程
+     */
+    private DisposableObserver<Long> getReadTimer() {
+        return new DisposableObserver<Long>() {
+            @Override
+            public void onNext(Long aLong) {
+                // 读取数据
+                byte[] data = mSerialUtil.getDataByte();
+                // 不为空的话进行回写
+                if (data != null) {
+                    String result = new String(data);
+                    // LogUtils.e(result);
+                    int index = result.indexOf("angle");
+                    if (index > 0) {
+                        result = result.substring(index + 6, index + 9).trim();
+                        if (callBack != null) {
+                            // 防止科大讯飞返回空字符串默认给角度值为0
+                            if (TextUtils.isEmpty(result)) {
+                                result = "0";
+                            }
+                            callBack.onWakeUp(result, false);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                LogUtils.e(e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                LogUtils.e("onComplete");
+            }
+        };
     }
 }
