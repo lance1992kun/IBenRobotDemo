@@ -659,13 +659,14 @@ public final class IBenMoveSDK {
         }
     }
 
-
     /**
      * 行走到指定点
      *
      * @param location 定点对象
+     * @param yaw      角度
+     * @param callBack 回调
      */
-    public void go2Location(final Location location, @NonNull final MoveCallBack callBack) {
+    public void go2Location(final Location location, final float yaw, final MoveCallBack callBack) {
         if (mRobotPlatform != null) {
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
@@ -674,6 +675,8 @@ public final class IBenMoveSDK {
                         if (location != null) {
                             MoveOption option = new MoveOption();
                             option.setSpeed(0.3);
+                            option.setWithYaw(true);
+                            option.setYaw(yaw);
                             moveAction = mRobotPlatform.moveTo(location, option);
                             e.onNext(true);
                         }
