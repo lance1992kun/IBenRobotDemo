@@ -42,7 +42,7 @@ public final class IBenTTSUtil {
      * 初始化
      */
     public void init(Context mContext) {
-        if (mTTSManager==null){
+        if (mTTSManager == null) {
             mTTSManager = new TTSManager(mContext);
         }
     }
@@ -79,14 +79,21 @@ public final class IBenTTSUtil {
      * @return 播放状态
      */
     public boolean isSpeaking() {
-        return mTTSManager.isSpeaking();
+        boolean result = false;
+        if (mTTSManager != null) {
+            result = mTTSManager.isSpeaking();
+        }
+        return result;
     }
 
     /**
      * 停止合成
      */
     public void stopSpeaking() {
-        mTTSManager.stopSpeaking();
+        if (mTTSManager != null) {
+            mTTSManager.stopSpeaking();
+        }
+
     }
 
     /**

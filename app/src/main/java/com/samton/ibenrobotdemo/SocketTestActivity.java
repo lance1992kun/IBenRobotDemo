@@ -21,7 +21,7 @@ import com.samton.IBenRobotSDK.utils.NetworkUtils;
 import com.samton.ibenrobotdemo.data.UploadMapBean;
 import com.samton.ibenrobotdemo.net.APIService;
 import com.samton.ibenrobotdemo.net.HttpUtil;
-import com.slamtec.slamware.action.ActionStatus;
+import com.samton.pwmmotor.PwmMotor;
 import com.slamtec.slamware.action.MoveDirection;
 import com.slamtec.slamware.robot.Location;
 
@@ -410,16 +410,16 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                 String[] points = content.split(",");
                 Location destination = new Location(Float.parseFloat(points[0]),
                         Float.parseFloat(points[1]), Float.parseFloat(points[2]));
-                moveSDK.go2Location(destination, new IBenMoveSDK.MoveCallBack() {
-                    @Override
-                    public void onStateChange(ActionStatus status) {
-                        if (status.equals(ActionStatus.FINISHED)) {
-                            mServer.sendMessage(MessageHelper.getMapMessage("navigation", "到达指定位置"));
-                        } else {
-                            mServer.sendMessage(MessageHelper.getMapMessage("navigation", "无法到达指定位置"));
-                        }
-                    }
-                });
+//                moveSDK.go2Location(destination, new IBenMoveSDK.MoveCallBack() {
+//                    @Override
+//                    public void onStateChange(ActionStatus status) {
+//                        if (status.equals(ActionStatus.FINISHED)) {
+//                            mServer.sendMessage(MessageHelper.getMapMessage("navigation", "到达指定位置"));
+//                        } else {
+//                            mServer.sendMessage(MessageHelper.getMapMessage("navigation", "无法到达指定位置"));
+//                        }
+//                    }
+//                });
                 break;
             default:
                 break;
