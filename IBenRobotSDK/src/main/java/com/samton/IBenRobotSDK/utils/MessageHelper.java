@@ -13,7 +13,7 @@ import org.json.JSONObject;
  * </pre>
  */
 @SuppressWarnings("unused")
-public class MessageHelper {
+public final class MessageHelper {
     /**
      * 失败码
      */
