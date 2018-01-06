@@ -12,20 +12,72 @@ import org.json.JSONObject;
  *   version :1.0
  * </pre>
  */
-
+@SuppressWarnings("unused")
 public class MessageHelper {
+    /**
+     * 失败码
+     */
+    public final static int CODE_FAILED = 0;
+    /**
+     * 成功码
+     */
+    public final static int CODE_SUCCESS = 1;
+
+    /**
+     * 获取连接成功回写信息
+     *
+     * @return 连接成功回写信息
+     */
+    public static String getConnectMessage() {
+        String result;
+        try {
+            JSONObject object = new JSONObject();
+            object.put("command", "connectMessage");
+            object.put("type", "connect");
+            object.put("code", CODE_SUCCESS);
+            object.put("content", "连接成功");
+            result = object.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            result = "";
+        }
+        return result;
+    }
+    /**
+     * 获取连接成功回写信息
+     *
+     * @return 连接成功回写信息
+     */
+    public static String getHaveConnectMessage() {
+        String result;
+        try {
+            JSONObject object = new JSONObject();
+            object.put("command", "connectMessage");
+            object.put("type", "connect");
+            object.put("code", CODE_FAILED);
+            object.put("content", "连接失败，当前已有客户端连接");
+            result = object.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            result = "";
+        }
+        return result;
+    }
+
     /**
      * 获取电量回写信息
      *
+     * @param code        类型>>>0失败，1>>>成功
      * @param batteryInfo 要回写的电量信息
      * @return 电量回写信息
      */
-    public static String getBatteryMessage(String batteryInfo) {
+    public static String getBatteryMessage(int code, String batteryInfo) {
         String result;
         try {
             JSONObject object = new JSONObject();
             object.put("command", "batteryMessage");
             object.put("type", "getPowerInfo");
+            object.put("code", code);
             object.put("content", batteryInfo);
             result = object.toString();
         } catch (JSONException e) {
@@ -39,15 +91,41 @@ public class MessageHelper {
      * 获取地图类型的回写信息
      *
      * @param type    消息类型
+     * @param code    类型>>>0失败，1>>>成功
      * @param content 要回写的信息
      * @return 回写信息
      */
-    public static String getMapMessage(String type, String content) {
+    public static String getMapMessage(int code, String type, String content) {
         String result;
         try {
             JSONObject object = new JSONObject();
             object.put("command", "mapMessage");
             object.put("type", type);
+            object.put("code", code);
+            object.put("content", content);
+            result = object.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            result = "";
+        }
+        return result;
+    }
+
+    /**
+     * 获取切换模式类型的回写信息
+     *
+     * @param code    类型>>>0失败，1>>>成功
+     * @param type    消息类型
+     * @param content 要回写的信息
+     * @return 回写信息
+     */
+    public static String getModeMessage(int code, String type, String content) {
+        String result;
+        try {
+            JSONObject object = new JSONObject();
+            object.put("command", "modeMessage");
+            object.put("type", type);
+            object.put("code", code);
             object.put("content", content);
             result = object.toString();
         } catch (JSONException e) {
