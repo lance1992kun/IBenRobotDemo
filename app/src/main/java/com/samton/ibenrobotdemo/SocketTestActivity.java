@@ -251,12 +251,12 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
         moveSDK.getBatteryInfo(new IBenMoveSDK.GetBatteryCallBack() {
             @Override
             public void onSuccess(String msg) {
-                mServer.sendMessage(MessageHelper.getBatteryMessage(msg));
+                mServer.sendMessage(MessageHelper.getBatteryMessage(MessageHelper.CODE_SUCCESS, msg));
             }
 
             @Override
             public void onFailed() {
-                mServer.sendMessage(MessageHelper.getBatteryMessage("未能获取电量信息"));
+                mServer.sendMessage(MessageHelper.getBatteryMessage(MessageHelper.CODE_FAILED, "未能获取电量信息"));
             }
         });
     }
@@ -274,7 +274,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                 if (uploadArray != null) {
                     uploadArray = null;
                 }
-                mServer.sendMessage(MessageHelper.getMapMessage("cancelMap", "取消地图成功"));
+                mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_SUCCESS, "cancelMap", "取消地图成功"));
                 break;
             // 获取地图
             case "getMap":
@@ -287,7 +287,7 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
 
                     @Override
                     public void onFailed() {
-                        mServer.sendMessage(MessageHelper.getMapMessage("getMap", "获取地图失败"));
+                        mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "getMap", "获取地图失败"));
                     }
                 });
                 break;
@@ -324,23 +324,23 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                                         if (uploadMapBean.getRs() == 1) {
                                             CacheUtils.getInstance().put(content, finalLocations);
                                             uploadArray = null;
-                                            mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图成功"));
+                                            mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_SUCCESS, "saveMap", "保存地图成功"));
                                         } else {
-                                            mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图失败"));
+                                            mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "saveMap", "保存地图失败"));
                                         }
                                     }
                                 }, new Consumer<Throwable>() {
                                     @Override
                                     public void accept(Throwable throwable) throws Exception {
                                         LogUtils.e(throwable.getMessage());
-                                        mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图失败"));
+                                        mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "saveMap", "保存地图失败"));
                                     }
                                 });
                     }
 
                     @Override
                     public void onFailed() {
-                        mServer.sendMessage(MessageHelper.getMapMessage("saveMap", "保存地图失败"));
+                        mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "saveMap", "保存地图失败"));
                     }
                 });
                 break;
@@ -361,25 +361,25 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    mServer.sendMessage(MessageHelper.getMapMessage("getLocation", "设置点成功"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_SUCCESS, "getLocation", "设置点成功"));
                 } else {
-                    mServer.sendMessage(MessageHelper.getMapMessage("getLocation", "设置点失败"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "getLocation", "设置点失败"));
                 }
                 break;
             // 移除指定点
             case "removeLocation":
                 if (removePoint(content)) {
-                    mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点失败"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_SUCCESS, "removeLocation", "移除点失败"));
                 } else {
-                    mServer.sendMessage(MessageHelper.getMapMessage("removeLocation", "移除点成功"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "removeLocation", "移除点成功"));
                 }
                 break;
             // 修改指定点
             case "editLocation":
                 if (editPoint(content)) {
-                    mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点成功"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_SUCCESS, "editLocation", "修改点成功"));
                 } else {
-                    mServer.sendMessage(MessageHelper.getMapMessage("editLocation", "修改点失败"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "editLocation", "修改点失败"));
                 }
                 break;
             // 回充电桩
@@ -396,9 +396,9 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
                         FileUtils.deleteFile(new File(Constants.MAP_PATH_THUMB + "/" + content));
                         CacheUtils.getInstance().remove(content);
                     }
-                    mServer.sendMessage(MessageHelper.getMapMessage("removeMap", "删除地图信息成功"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_SUCCESS, "removeMap", "删除地图信息成功"));
                 } catch (Throwable throwable) {
-                    mServer.sendMessage(MessageHelper.getMapMessage("removeMap", "删除地图信息失败"));
+                    mServer.sendMessage(MessageHelper.getMapMessage(MessageHelper.CODE_FAILED, "removeMap", "删除地图信息失败"));
                 }
                 break;
             // 停止地图刷新
