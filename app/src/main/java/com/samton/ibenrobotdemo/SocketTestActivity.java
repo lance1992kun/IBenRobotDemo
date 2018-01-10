@@ -251,12 +251,12 @@ public class SocketTestActivity extends AppCompatActivity implements RobotSocket
         moveSDK.getBatteryInfo(new IBenMoveSDK.GetBatteryCallBack() {
             @Override
             public void onSuccess(String msg) {
-                mServer.sendMessage(MessageHelper.getBatteryMessage(MessageHelper.CODE_SUCCESS, msg));
+                mServer.sendMessage(MessageHelper.getBatteryMessage(MessageHelper.CODE_SUCCESS, MessageHelper.TYPE_GET_POWER_INFO, msg));
             }
 
             @Override
             public void onFailed() {
-                mServer.sendMessage(MessageHelper.getBatteryMessage(MessageHelper.CODE_FAILED, "未能获取电量信息"));
+                mServer.sendMessage(MessageHelper.getBatteryMessage(MessageHelper.CODE_FAILED, MessageHelper.TYPE_GET_POWER_INFO, "未能获取电量信息"));
             }
         });
     }

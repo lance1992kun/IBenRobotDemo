@@ -30,6 +30,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -92,9 +94,9 @@ public final class IBenMoveSDK {
      */
     private Disposable mReconnectTimer = null;
     /**
-     * 当前姿态对象
+     * 线程池
      */
-    private Pose mCurrentPose = null;
+    private ExecutorService mThreadPool = null;
 
     /**
      * 机器人连接回调
@@ -175,6 +177,8 @@ public final class IBenMoveSDK {
      * 私有构造
      */
     private IBenMoveSDK() {
+        // 初始化线程池
+        mThreadPool = Executors.newFixedThreadPool(10);
     }
 
     /**
@@ -385,7 +389,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -427,7 +431,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -499,7 +503,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -534,7 +538,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -570,7 +574,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -607,7 +611,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -689,7 +693,7 @@ public final class IBenMoveSDK {
                         e.onNext(false);
                     }
                 }
-            }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+            }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (!aBoolean) {
@@ -738,7 +742,7 @@ public final class IBenMoveSDK {
                             e.onNext(false);
                         }
                     }
-                }).subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).subscribe(new Consumer<Boolean>() {
+                }).subscribeOn(Schedulers.from(mThreadPool)).observeOn(Schedulers.from(mThreadPool)).subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
                         if (!aBoolean) {
