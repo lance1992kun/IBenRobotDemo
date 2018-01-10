@@ -2,6 +2,7 @@ package com.samton.IBenRobotSDK.core;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.SystemClock;
 
 import com.samton.IBenRobotSDK.data.Constants;
 import com.samton.IBenRobotSDK.utils.FileIOUtils;
@@ -181,6 +182,10 @@ public final class IBenMoveSDK {
      */
     public void goHome() {
         if (mRobotPlatform != null) {
+            // 停止当前左右动作
+            cancelAllActions();
+            // 沉睡0.3秒
+            SystemClock.sleep(300);
             try {
                 mRobotPlatform.goHome();
             } catch (Throwable throwable) {
@@ -783,6 +788,22 @@ public final class IBenMoveSDK {
         } else {
             onRequestError();
         }
+    }
+
+    /**
+     * 判断机器人是否是无线充电状态
+     * @return 是否在无线充电状态
+     */
+    public boolean isHome() {
+        boolean isHome = false;
+        if (mRobotPlatform != null) {
+            boolean isCharging = mRobotPlatform.getPowerStatus().isCharging();
+            boolean isDcConnect = mRobotPlatform.getPowerStatus().isDCConnected();
+            isHome = isCharging && !isDcConnect;
+        } else {
+            onRequestError();
+        }
+        return isHome;
     }
 
     /**

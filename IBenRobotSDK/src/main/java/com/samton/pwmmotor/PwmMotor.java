@@ -19,7 +19,7 @@ import io.reactivex.functions.Consumer;
  *     version: 2.0
  * </pre>
  */
-
+@Deprecated
 public class PwmMotor {
     /**
      * 周期
