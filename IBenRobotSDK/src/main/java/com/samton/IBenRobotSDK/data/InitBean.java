@@ -844,6 +844,10 @@ public final class InitBean {
                  * printId : 168
                  * orderNum : 1
                  * state : 1
+                 * "printType":  2,
+                 * "dynamicType":  0,
+                 * "startNum":  0,
+                 * "endNum":  0
                  */
 
                 private int printItemId;
@@ -852,6 +856,42 @@ public final class InitBean {
                 private int printId;
                 private int orderNum;
                 private int state;
+                private int printType;
+                private int dynamicType;
+                private int startNum;
+                private int endNum;
+
+                public int getPrintType() {
+                    return printType;
+                }
+
+                public void setPrintType(int printType) {
+                    this.printType = printType;
+                }
+
+                public int getDynamicType() {
+                    return dynamicType;
+                }
+
+                public void setDynamicType(int dynamicType) {
+                    this.dynamicType = dynamicType;
+                }
+
+                public int getStartNum() {
+                    return startNum;
+                }
+
+                public void setStartNum(int startNum) {
+                    this.startNum = startNum;
+                }
+
+                public int getEndNum() {
+                    return endNum;
+                }
+
+                public void setEndNum(int endNum) {
+                    this.endNum = endNum;
+                }
 
                 public int getPrintItemId() {
                     return printItemId;
