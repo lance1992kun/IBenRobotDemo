@@ -796,6 +796,7 @@ public final class IBenMoveSDK {
 
     /**
      * 判断机器人是否是无线充电状态
+     *
      * @return 是否在无线充电状态
      */
     public boolean isHome() {
@@ -882,16 +883,16 @@ public final class IBenMoveSDK {
     /**
      * 根据地图名字加载地图
      *
-     * @param mapName  地图名字
-     * @param callBack 回调函数
+     * @param mapNamePath 地图文件路径
+     * @param callBack    回调函数
      */
-    public void loadMap(final String mapName, final MapCallBack callBack) {
+    public void loadMap(final String mapNamePath, final MapCallBack callBack) {
         Observable.create(new ObservableOnSubscribe<Boolean>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
                 try {
                     // 获取地图文件
-                    File file = new File(Constants.MAP_PATH + "/" + mapName);
+                    File file = new File(mapNamePath);
                     // 地图文件不存在直接返回
                     if (!FileUtils.isFileExists(file)) {
                         e.onNext(false);
