@@ -17,5 +17,5 @@ public interface IWakeUpCallBack {
      * @param angle     唤醒角度
      * @param isPassive 是否被动唤醒(用户点击音乐跳舞这种属于被动唤醒)
      */
-    void onWakeUp(String angle, boolean isPassive);
+    void onWakeUp(int angle, boolean isPassive);
 }

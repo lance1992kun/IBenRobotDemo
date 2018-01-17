@@ -31,7 +31,7 @@ public class WakeUpUtil {
     /**
      * 唤醒工具单例
      */
-    private static WakeUpUtil instance = new WakeUpUtil();
+    private volatile static WakeUpUtil instance = new WakeUpUtil();
     /**
      * 读写回显定时器
      */
@@ -96,7 +96,7 @@ public class WakeUpUtil {
         // 手动开启唤醒功能并默认角度为0的麦克风进行增强录音
         mSerialUtil.setData("BEAM0\r".getBytes());
         if (callBack != null) {
-            callBack.onWakeUp("0", isPassive);
+            callBack.onWakeUp(0, isPassive);
         }
     }
 
@@ -133,7 +133,15 @@ public class WakeUpUtil {
                             if (TextUtils.isEmpty(result)) {
                                 result = "0";
                             }
-                            callBack.onWakeUp(result, false);
+                            // 解析唤醒角度
+                            int angle;
+                            try {
+                                angle = Integer.valueOf(result);
+                            } catch (Throwable throwable) {
+                                angle = 0;
+                            }
+                            // 回调
+                            callBack.onWakeUp(angle, false);
                         }
                     }
                 }

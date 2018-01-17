@@ -2,31 +2,38 @@ package com.samton.IBenRobotSDK.print;
 
 import android.content.Context;
 
-import com.samton.IBenRobotSDK.utils.LogUtils;
-
-import net.posprinter.posprinterface.IMyBinder;
-import net.posprinter.utils.DataForSendToPrinterPos80;
-
 import java.util.List;
 
 /**
- * Created by lhg on 2017/10/14.
- * <p>
- * 打印机连接管理类
+ * <pre>
+ *   author  : lhg
+ *   e-mail  : shenyukun1024@gmail.com
+ *   time    : 2018/01/05 13:37
+ *   desc    : 打印机管理类
+ *   version : 1.0
+ * </pre>
  */
 public class PrintManager {
-    public static PrintManager manger;
+    /**
+     * 打印机管理类单例
+     */
+    public volatile static PrintManager manger;
+    /**
+     * 打印机 - USB连接对象
+     */
     private PrintUsbAdmin mPrintUsbAdmin;
-    // 0  没有选择  1 USB连接  2 蓝牙连接
-    private int PRINT_CONNECT_TYPE = 0;
 
+    /**
+     * 私有构造
+     */
     private PrintManager() {
+
     }
 
     /**
-     * 单例 打印管理对象
+     * 获取打印管理对象单例
      *
-     * @return
+     * @return 打印管理对象单例
      */
     public static synchronized PrintManager getInstance() {
         if (manger == null) {
@@ -42,95 +49,53 @@ public class PrintManager {
     /**
      * 初始化 usb 连接打印机
      *
-     * @param mContext
+     * @param mContext 上下文对象
      */
-    public void initUSB(Context mContext) {
-        PRINT_CONNECT_TYPE = 1;
-        mPrintUsbAdmin = new PrintUsbAdmin(mContext);
-    }
-
-    /**
-     * 初始化 蓝牙连接打印接
-     *
-     * @param mContext
-     */
-    public void initBLUE(Context mContext, IMyBinder binder, PrintConnectCallBack callBack) {
-        PRINT_CONNECT_TYPE = 2;
-        PrintBlueAdmin.getIntance().connectBlue(mContext, binder, callBack);
+    public void init(Context mContext) {
+        if (mPrintUsbAdmin == null) {
+            mPrintUsbAdmin = new PrintUsbAdmin(mContext);
+        }
+        connect();
     }
 
     /**
      * 打开USB连接
      */
-    public void USBConnect() {
-        if (PRINT_CONNECT_TYPE == 1) {
-            if (mPrintUsbAdmin != null) {
-                mPrintUsbAdmin.Openusb();
-            }
-        } else {
-            LogUtils.d("USBConnect: 未初始化USB 连接 ");
+    private void connect() {
+        if (mPrintUsbAdmin != null) {
+            mPrintUsbAdmin.openUsbDevice();
         }
     }
 
     /**
      * 关闭USB连接
      */
-    public void USBClose() {
+    public void close() {
         if (mPrintUsbAdmin != null) {
-            mPrintUsbAdmin.Closeusb();
+            mPrintUsbAdmin.closeUsbDevice();
         }
     }
 
     /**
      * 发送打印命令
      *
-     * @param content
+     * @param content 打印的内容
      */
-    public void USBPrint(List<byte[]> content) {
-        if(mPrintUsbAdmin!=null){
+    public void print(List<byte[]> content) {
+        if (mPrintUsbAdmin != null) {
             for (int i = 0; i < content.size(); i++) {
                 mPrintUsbAdmin.sendCommand(content.get(i));
             }
-            mPrintUsbAdmin.sendCommand(DataForSendToPrinterPos80.selectCutPagerModerAndCutPager(66, 1));
         }
     }
 
     /**
-     * 获取USB 连接状态
+     * 获取连接状态
      *
-     * @return
+     * @return 是否已经连接到了打印机
      */
-    public boolean getUsbConnectState() {
-        return mPrintUsbAdmin.GetUsbStatus();
+    public boolean isPrinterConnected() {
+        return mPrintUsbAdmin != null && mPrintUsbAdmin.isUsbConnected();
     }
 
-    /**
-     * 蓝牙连接
-     *
-     * @param mContext
-     * @param binder
-     * @param callBack
-     */
-    public void BuleConnect(Context mContext, IMyBinder binder, PrintConnectCallBack callBack) {
-        PrintBlueAdmin.getIntance().connectBlue(mContext, binder, callBack);
-    }
-
-    /**
-     * 蓝牙打印
-     *
-     * @param binder
-     * @param content
-     */
-    public void BluePrint(IMyBinder binder, final List<byte[]> content) {
-        PrintBlueAdmin.getIntance().print(content, binder);
-    }
-
-    /**
-     * 获取蓝牙连接状态
-     *
-     * @return
-     */
-    public boolean getBlueConnectState() {
-        return PrintBlueAdmin.getIntance().isConnect();
-    }
 }

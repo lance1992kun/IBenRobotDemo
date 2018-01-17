@@ -1,12 +1,8 @@
 package com.samton.ibenrobotdemo;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,15 +23,12 @@ import com.samton.IBenRobotSDK.interfaces.IBenRecordCallBack;
 import com.samton.IBenRobotSDK.interfaces.IBenTTSCallBack;
 import com.samton.IBenRobotSDK.interfaces.IBenTranslateCallBack;
 import com.samton.IBenRobotSDK.interfaces.IWakeUpCallBack;
-import com.samton.IBenRobotSDK.print.PrintConnectCallBack;
-import com.samton.IBenRobotSDK.print.PrintManager;
 import com.samton.IBenRobotSDK.utils.LogUtils;
 import com.samton.IBenRobotSDK.utils.ToastUtils;
 import com.samton.IBenRobotSDK.utils.WakeUpUtil;
 import com.samton.pwmmotor.PwmMotor;
 
 import net.posprinter.posprinterface.IMyBinder;
-import net.posprinter.service.PosprinterService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -101,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MainSDK.init(getApplication());
         WakeUpUtil.getInstance().setCallBack(new IWakeUpCallBack() {
             @Override
-            public void onWakeUp(String angle, boolean isPassive) {
+            public void onWakeUp(int angle, boolean isPassive) {
                 mResultText.post(new Runnable() {
                     @Override
                     public void run() {
@@ -202,42 +195,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void initPrint(int type) {
-        if (type == 0) {
-            PrintManager.getInstance().initUSB(this);
-            PrintManager.getInstance().USBConnect();
-        } else {
-            ServiceConnection connection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    binder = (IMyBinder) service;
-                    PrintManager.getInstance().initBLUE(MainActivity.this, (IMyBinder) service, new PrintConnectCallBack() {
-                        @Override
-                        public void connectSuccess() {
-                            // TODO　连接成功
-                        }
-
-                        @Override
-                        public void connectFail(String errorMessage) {
-                            // TODO 连接失败
-                        }
-
-                        @Override
-                        public void onDisConnect() {
-                            // TODO 蓝牙断开连接
-                            LogUtils.e("蓝牙打印机断开连接");
-                        }
-                    });
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-
-                }
-            };
-            bindService(new Intent(this, PosprinterService.class), connection, BIND_AUTO_CREATE);
-        }
-    }
 
     @Override
     public void onClick(View v) {
