@@ -98,4 +98,11 @@ public class PrintManager {
         return mPrintUsbAdmin != null && mPrintUsbAdmin.isUsbConnected();
     }
 
+    /**
+     * 反注册广播
+     */
+    public void unRegister(){
+        mPrintUsbAdmin.unRegister();
+    }
 }
+

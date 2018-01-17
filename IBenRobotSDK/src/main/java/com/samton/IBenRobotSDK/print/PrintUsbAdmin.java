@@ -29,6 +29,10 @@ import java.util.HashMap;
 @SuppressLint("NewApi")
 public class PrintUsbAdmin {
     /**
+     * 上下文对象
+     */
+    private Context mContext;
+    /**
      * Android - USB管理对象
      */
     private UsbManager mUsbManager;
@@ -53,7 +57,27 @@ public class PrintUsbAdmin {
      */
     private static final String ACTION_USB_PERMISSION =
             "com.android.example.USB_PERMISSION";
-
+    /**
+     * 广播接受者
+     */
+    private BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (ACTION_USB_PERMISSION.equals(action)) {
+                synchronized (this) {
+                    UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        if (device != null) {
+                            setDevice(device);
+                        } else {
+                            closeUsbDevice();
+                            mDevice = null;
+                        }
+                    }
+                }
+            }
+        }
+    };
     /**
      * 设置USB设备
      *
@@ -168,27 +192,17 @@ public class PrintUsbAdmin {
      * @param context 上下文对象
      */
     public PrintUsbAdmin(Context context) {
+        this.mContext = context;
         mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (ACTION_USB_PERMISSION.equals(action)) {
-                    synchronized (this) {
-                        UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                        if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                            if (device != null) {
-                                setDevice(device);
-                            } else {
-                                closeUsbDevice();
-                                mDevice = null;
-                            }
-                        }
-                    }
-                }
-            }
-        };
         context.registerReceiver(mUsbReceiver, filter);
+    }
+
+    /**
+     * 反注册广播
+     */
+    public void unRegister(){
+        mContext.unregisterReceiver(mUsbReceiver);
     }
 }
