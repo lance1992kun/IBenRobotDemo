@@ -128,10 +128,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.button2:
                 mIntent.setClass(this, MainActivity.class);
                 break;
-            // SOCKET测试界面
-            case R.id.button3:
-                mIntent.setClass(this, SocketTestActivity.class);
-                break;
         }
         startActivity(mIntent);
     }

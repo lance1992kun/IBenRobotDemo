@@ -72,7 +72,6 @@
         </activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".RobotTestActivity" />
-        <activity android:name=".SocketTestActivity" />
 
         <service android:name="net.posprinter.service.PosprinterService" />
         <!--小笨智能机器人SDK配置开始-->

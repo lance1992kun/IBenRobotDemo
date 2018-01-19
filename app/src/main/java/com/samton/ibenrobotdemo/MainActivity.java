@@ -1,12 +1,8 @@
 package com.samton.ibenrobotdemo;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,34 +10,27 @@ import android.widget.TextView;
 import com.iflytek.cloud.SpeechError;
 import com.samton.IBenRobotSDK.core.IBenChatSDK;
 import com.samton.IBenRobotSDK.core.IBenRecordUtil;
+import com.samton.IBenRobotSDK.core.IBenSerialUtil;
 import com.samton.IBenRobotSDK.core.IBenTTSUtil;
 import com.samton.IBenRobotSDK.core.IBenTranslateSDK;
+import com.samton.IBenRobotSDK.core.IBenWakeUpUtil;
 import com.samton.IBenRobotSDK.core.MainSDK;
 import com.samton.IBenRobotSDK.data.MessageBean;
 import com.samton.IBenRobotSDK.interfaces.IBenMsgCallBack;
 import com.samton.IBenRobotSDK.interfaces.IBenRecordCallBack;
 import com.samton.IBenRobotSDK.interfaces.IBenTTSCallBack;
 import com.samton.IBenRobotSDK.interfaces.IBenTranslateCallBack;
+import com.samton.IBenRobotSDK.interfaces.ISerialCallBack;
 import com.samton.IBenRobotSDK.interfaces.IWakeUpCallBack;
 import com.samton.IBenRobotSDK.utils.LogUtils;
 import com.samton.IBenRobotSDK.utils.ToastUtils;
-import com.samton.IBenRobotSDK.utils.WakeUpUtil;
 
-import net.posprinter.posprinterface.IMyBinder;
-
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity
+        implements View.OnClickListener, ISerialCallBack {
 
     private EditText mSendTestEdit = null;
     private TextView mResultText = null;
     private TextView mStatusText = null;
-    private IMyBinder binder = null;
-    private final static int period = 1800;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,23 +38,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initView();
         initData();
-//        initPrint(0);
-//        Log.e("---", getProgramNameByPackageName(this, "com.qihancloud.setting"));
-//        Log.e("---", getProgramNameByPackageName(this, "com.qihancloud.contact"));
-//        Log.e("---", getProgramNameByPackageName(this, "com.qihancloud.update"));
-    }
-
-    public static String getProgramNameByPackageName(Context context, String packageName) {
-        PackageManager pm = context.getPackageManager();
-        String name = null;
-        try {
-            name = pm.getApplicationLabel(pm.getApplicationInfo(packageName,
-                    PackageManager.GET_META_DATA)).toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-
-        }
-        return name;
     }
 
     private void initView() {
@@ -86,12 +58,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.mHeadMiddle).setOnClickListener(this);
         findViewById(R.id.mHeadRight).setOnClickListener(this);
         findViewById(R.id.mDancingTestBtn).setOnClickListener(this);
+        findViewById(R.id.mSerialPortBtn).setOnClickListener(this);
     }
 
     private void initData() {
-       //  PwmMotor.getInstance().openDevices();
         MainSDK.init(getApplication());
-        WakeUpUtil.getInstance().setCallBack(new IWakeUpCallBack() {
+        IBenWakeUpUtil.getInstance().setCallBack(new IWakeUpCallBack() {
             @Override
             public void onWakeUp(int angle, boolean isPassive) {
                 mResultText.post(new Runnable() {
@@ -192,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+
+        IBenSerialUtil.getInstance().setCallBack(this);
     }
 
 
@@ -226,10 +200,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 IBenTranslateSDK.getInstance().translate(msg, "英文", "中文");
                 break;
             case R.id.mPrintTestBtn:
-//                List<byte[]> mList = PrintBuilder.printContent(msg, PrintConstants.PRINT_CENTER, PrintConstants.FONT_SIZEE_0, 0);
-//                // IBenPrintSDK.getInstance().BluePrint(binder, mList);
-//                IBenPrintSDK.getInstance().USBPrint(mList);
-                Log.e("---", getProgramNameByPackageName(MainActivity.this, msg));
                 break;
             case R.id.mLeftUp:
                 // PwmMotor.getInstance().leftArmUp();
@@ -252,132 +222,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.mHeadRight:
                 // PwmMotor.getInstance().head2Right();
                 break;
-            case R.id.mDancingTestBtn:
-                Observable.interval(0, 48500, TimeUnit.MILLISECONDS)
-                        .observeOn(Schedulers.newThread())
-                        .subscribe(new Consumer<Long>() {
-                            @Override
-                            public void accept(Long aLong) throws Exception {
-                                dancingTest();
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-
-                            }
-                        });
+            // 串口发送数据测试
+            case R.id.mSerialPortBtn:
+                IBenSerialUtil.getInstance().sendData(msg);
                 break;
         }
-//        mSendTestEdit.setText("");
-    }
-
-    /**
-     * 跳舞测试
-     */
-    private void dancingTest() {
-        try {
-            // 第一组动作
-//            PwmMotor.getInstance().leftArmUp();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().rightArmUp();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().rightArmDown();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Left30();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Right30();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Right30();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Left30();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            // 第二组动作
-//            PwmMotor.getInstance().leftArmUp45();
-//            PwmMotor.getInstance().rightArmUp45();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            PwmMotor.getInstance().rightArmDown();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmUp();
-//            PwmMotor.getInstance().rightArmUp();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            PwmMotor.getInstance().rightArmDown();
-//            Thread.sleep(period);
-//            // 第三组动作
-//            PwmMotor.getInstance().leftArmUp60();
-//            PwmMotor.getInstance().head2Left();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            PwmMotor.getInstance().rightArmUp60();
-//            PwmMotor.getInstance().head2Right();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().rightArmDown();
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            // 第四组动作
-//            PwmMotor.getInstance().rightArmUp60();
-//            PwmMotor.getInstance().head2Right();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().rightArmDown();
-//            PwmMotor.getInstance().leftArmUp60();
-//            PwmMotor.getInstance().head2Left();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            // 第五组动作
-//            PwmMotor.getInstance().leftArmUp();
-//            PwmMotor.getInstance().rightArmUp();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            PwmMotor.getInstance().rightArmDown();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmUp();
-//            PwmMotor.getInstance().rightArmUp();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().leftArmDown();
-//            PwmMotor.getInstance().rightArmDown();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Left();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Left();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Right();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Right();
-//            Thread.sleep(period);
-//            PwmMotor.getInstance().head2Middle();
-//            Thread.sleep(period);
-        } catch (Throwable throwable) {
-            LogUtils.e(throwable.getMessage());
-        }
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == 0) {
-            ToastUtils.showShort("检测到键值>>>" + (event.getScanCode() == 256 ? 0 : 1));
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == 0) {
-        }
-        return super.onKeyUp(keyCode, event);
+    public void onReadData(String result) {
+        final String text = "串口回写数据--->" + result;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mResultText.setText(text);
+            }
+        });
     }
 }

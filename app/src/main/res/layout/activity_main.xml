@@ -112,6 +112,12 @@
             android:layout_height="wrap_content"
             android:text="跳舞测试" />
 
+        <Button
+            android:id="@+id/mSerialPortBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="串口发送数据测试" />
+
         <TextView
             android:id="@+id/mStatusText"
             android:layout_width="match_parent"
