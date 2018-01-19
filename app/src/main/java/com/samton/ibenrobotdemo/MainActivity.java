@@ -228,8 +228,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.mPrintTestBtn:
 //                List<byte[]> mList = PrintBuilder.printContent(msg, PrintConstants.PRINT_CENTER, PrintConstants.FONT_SIZEE_0, 0);
-//                // PrintManager.getInstance().BluePrint(binder, mList);
-//                PrintManager.getInstance().USBPrint(mList);
+//                // IBenPrintSDK.getInstance().BluePrint(binder, mList);
+//                IBenPrintSDK.getInstance().USBPrint(mList);
                 Log.e("---", getProgramNameByPackageName(MainActivity.this, msg));
                 break;
             case R.id.mLeftUp:
