@@ -87,6 +87,18 @@ public final class IBenSerialUtil {
     }
 
     /**
+     * 向串口写数据
+     *
+     * @param position 位置L,R,H
+     * @param angle    角度0~270
+     * @param speed    速度001-700
+     */
+    public void sendData(String position, String angle, String speed) {
+        String data = "{S" + position + angle + speed + "}";
+        mSerialUtil.setData(data.getBytes());
+    }
+
+    /**
      * 创建定时回写线程
      */
     private DisposableObserver<Long> getReadTimer() {
