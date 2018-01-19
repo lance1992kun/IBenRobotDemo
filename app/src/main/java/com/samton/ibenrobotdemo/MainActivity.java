@@ -26,7 +26,6 @@ import com.samton.IBenRobotSDK.interfaces.IWakeUpCallBack;
 import com.samton.IBenRobotSDK.utils.LogUtils;
 import com.samton.IBenRobotSDK.utils.ToastUtils;
 import com.samton.IBenRobotSDK.utils.WakeUpUtil;
-import com.samton.pwmmotor.PwmMotor;
 
 import net.posprinter.posprinterface.IMyBinder;
 
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initData() {
-        PwmMotor.getInstance().openDevices();
+       //  PwmMotor.getInstance().openDevices();
         MainSDK.init(getApplication());
         WakeUpUtil.getInstance().setCallBack(new IWakeUpCallBack() {
             @Override
@@ -233,25 +232,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e("---", getProgramNameByPackageName(MainActivity.this, msg));
                 break;
             case R.id.mLeftUp:
-                PwmMotor.getInstance().leftArmUp();
+                // PwmMotor.getInstance().leftArmUp();
                 break;
             case R.id.mLeftDown:
-                PwmMotor.getInstance().leftArmDown();
+                // PwmMotor.getInstance().leftArmDown();
                 break;
             case R.id.mRightUp:
-                PwmMotor.getInstance().rightArmUp();
+                // PwmMotor.getInstance().rightArmUp();
                 break;
             case R.id.mRightDown:
-                PwmMotor.getInstance().rightArmDown();
+                // PwmMotor.getInstance().rightArmDown();
                 break;
             case R.id.mHeadLeft:
-                PwmMotor.getInstance().head2Left();
+                // PwmMotor.getInstance().head2Left();
                 break;
             case R.id.mHeadMiddle:
-                PwmMotor.getInstance().head2Middle();
+                // PwmMotor.getInstance().head2Middle();
                 break;
             case R.id.mHeadRight:
-                PwmMotor.getInstance().head2Right();
+                // PwmMotor.getInstance().head2Right();
                 break;
             case R.id.mDancingTestBtn:
                 Observable.interval(0, 48500, TimeUnit.MILLISECONDS)
