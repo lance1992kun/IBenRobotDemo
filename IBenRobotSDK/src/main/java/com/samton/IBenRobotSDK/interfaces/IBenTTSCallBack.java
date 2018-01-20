@@ -15,13 +15,16 @@ import com.iflytek.cloud.SpeechError;
 public interface IBenTTSCallBack {
     /**
      * 开始转换
+     *
+     * @param tag 标识
      */
-    void onSpeakBegin();
+    void onSpeakBegin(int tag);
 
     /**
      * 转换结束
      *
+     * @param tag   标识
      * @param error 错误码
      */
-    void onCompleted(SpeechError error);
+    void onCompleted(int tag, SpeechError error);
 }

@@ -52,6 +52,10 @@ final class IBenIMHelper implements ECDevice.OnECDeviceConnectListener {
      */
     private IBenMsgCallBack mCallBack = null;
     /**
+     * 标识
+     */
+    private int mTag = -1;
+    /**
      * 5秒从新登录倒计时
      */
     private CountDownTimer timer = new CountDownTimer(5000, 1000) {
@@ -102,10 +106,12 @@ final class IBenIMHelper implements ECDevice.OnECDeviceConnectListener {
     /**
      * 初始化
      *
+     * @param tag       标识
      * @param mContext  上下文对象
      * @param mCallBack 回调
      */
-    public void init(Context mContext, IBenMsgCallBack mCallBack) {
+    public void init(int tag, Context mContext, IBenMsgCallBack mCallBack) {
+        mTag = tag;
         this.mCallBack = mCallBack;
         if (!isInit) {
             ECDevice.initial(mContext, new ECDevice.InitListener() {
@@ -166,7 +172,7 @@ final class IBenIMHelper implements ECDevice.OnECDeviceConnectListener {
                 if (type == ECMessage.Type.TXT) {
                     // 在这里处理文本消息
                     ECTextMessageBody textMessageBody = (ECTextMessageBody) msg.getBody();
-                    mCallBack.onSuccess(new Gson().fromJson(textMessageBody.getMessage(), MessageBean.class));
+                    mCallBack.onSuccess(mTag, new Gson().fromJson(textMessageBody.getMessage(), MessageBean.class));
                 }
             }
 

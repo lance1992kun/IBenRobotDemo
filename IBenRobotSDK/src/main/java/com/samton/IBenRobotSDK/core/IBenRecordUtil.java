@@ -52,6 +52,10 @@ public final class IBenRecordUtil {
      * String构造对象
      */
     private static StringBuilder mStringBuilder = null;
+    /**
+     * 标识
+     */
+    private int mTag = -1;
 
     /**
      * 设置语音回调接口
@@ -110,6 +114,21 @@ public final class IBenRecordUtil {
     }
 
     /**
+     * 开始识别
+     *
+     * @param tag 标识
+     */
+    public void startRecognize(int tag) {
+        // 设置此次的标识
+        mTag = tag;
+        // 清空之前的识别结果
+        map = new LinkedHashMap<>();
+        // map.clear();
+        mRecordManager.setParam();
+        mRecordManager.startListener(mRecognizerListener);
+    }
+
+    /**
      * 结束识别
      */
     public void stopRecognize() {
@@ -121,6 +140,8 @@ public final class IBenRecordUtil {
      * 在界面销毁中调用
      */
     public void recycle() {
+        // 重置标识
+        mTag = -1;
         // 回收科大讯飞录音
         if (mRecordManager != null) {
             mRecordManager.cancel();
@@ -164,19 +185,19 @@ public final class IBenRecordUtil {
         @Override
         public void onBeginOfSpeech() {
             // 开始说话
-            mCallBack.onBeginOfSpeech();
+            mCallBack.onBeginOfSpeech(mTag);
         }
 
         @Override
         public void onVolumeChanged(int i, byte[] bytes) {
             // 当前正在说话 i = 音量大小
-            mCallBack.onVolumeChanged(i, bytes);
+            mCallBack.onVolumeChanged(mTag, i, bytes);
         }
 
         @Override
         public void onEndOfSpeech() {
             // 结束说话
-            mCallBack.onEndOfSpeech();
+            mCallBack.onEndOfSpeech(mTag);
         }
 
         @Override
@@ -188,12 +209,12 @@ public final class IBenRecordUtil {
                 if (mStringBuilder != null) {
                     result = mStringBuilder.toString().trim();
                     if (TextUtils.isEmpty(result)) {
-                        mCallBack.onError("识别结果为空");
+                        mCallBack.onError(mTag, "识别结果为空");
                     } else {
                         if (!"。".equals(result)) {
-                            mCallBack.onResult(result);
+                            mCallBack.onResult(mTag, result);
                         } else {
-                            mCallBack.onError("识别结果为空");
+                            mCallBack.onError(mTag, "识别结果为空");
                         }
                     }
                     mStringBuilder.delete(0, mStringBuilder.length());
@@ -204,9 +225,9 @@ public final class IBenRecordUtil {
 
         @Override
         public void onError(SpeechError speechError) {
-            mCallBack.onError(speechError.getErrorDescription());
+            mCallBack.onError(mTag, speechError.getErrorDescription());
 //            // 错误码为10118代表没有说话20002代表网络超时
-//            if (speechError.getErrorCode() == 10118 || speechError.getErrorCode() == 20002) {
+//            if (speechError.g¬etErrorCode() == 10118 || speechError.getErrorCode() == 20002) {
 //                mCallBack.onConnectFailed(speechError.getMessage());
 //            }
         }

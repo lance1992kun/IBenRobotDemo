@@ -36,6 +36,10 @@ public final class IBenChatSDK {
      * 信息回调
      */
     private IBenMsgCallBack callBack = null;
+    /**
+     * 标识
+     */
+    private int mTag = -1;
 
     /**
      * 获取聊天SDK单例
@@ -75,7 +79,7 @@ public final class IBenChatSDK {
      */
     public void initIMSDK(Context mContext) {
         // 初始化IM模块
-        IBenIMHelper.getInstance().init(mContext,callBack);
+        IBenIMHelper.getInstance().init(mTag,mContext, callBack);
     }
 
     /**
@@ -109,6 +113,37 @@ public final class IBenChatSDK {
     }
 
     /**
+     * 与小笨机器人聊天
+     *
+     * @param tag 标识
+     * @param msg 要发送的信息
+     */
+    public void sendMessage(int tag, final String msg) {
+        HttpUtil.getInstance().create(HttpRequest.class)
+                .getRobotChatFlag(SPUtils.getInstance().getString(ROBOT_APP_KEY))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ChatFlagBean>() {
+                    @Override
+                    public void accept(@NonNull ChatFlagBean chatFlagBean) throws Exception {
+                        // 发送信息给人工客服客服
+                        if (chatFlagBean.getRs() == 1) {
+                            send2IM(chatFlagBean.getAccout(), msg);
+                        }
+                        // 发送消息给小笨
+                        else {
+                            send2IBen(msg);
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        LogUtils.e(throwable.getMessage());
+                    }
+                });
+    }
+
+    /**
      * 发送信息给人工客服客服
      *
      * @param account 人工客服账号
@@ -116,7 +151,7 @@ public final class IBenChatSDK {
      */
     private void send2IM(String account, String msg) {
         // 回调状态QA为false
-        callBack.onStateChange(false);
+        callBack.onStateChange(mTag, false);
         // 发送给人工的消息
         IBenIMHelper.getInstance().sendTxtMsg(account, msg);
     }
@@ -128,7 +163,7 @@ public final class IBenChatSDK {
      */
     private void send2IBen(String msg) {
         // 回调状态QA为true
-        callBack.onStateChange(true);
+        callBack.onStateChange(mTag, true);
         // APP_KEY
         String appKey = SPUtils.getInstance().getString(ROBOT_APP_KEY);
         // 当前时间
@@ -141,13 +176,13 @@ public final class IBenChatSDK {
                     @Override
                     public void accept(@NonNull MessageBean messageBean) throws Exception {
                         // 成功回调
-                        callBack.onSuccess(messageBean);
+                        callBack.onSuccess(mTag, messageBean);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
                         // 失败回调
-                        callBack.onFailed(throwable.getMessage());
+                        callBack.onFailed(mTag, throwable.getMessage());
                     }
                 });
     }

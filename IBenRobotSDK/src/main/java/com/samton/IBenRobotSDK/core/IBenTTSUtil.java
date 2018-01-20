@@ -31,6 +31,10 @@ public final class IBenTTSUtil {
      * 语音回调接口
      */
     private IBenTTSCallBack callBack = null;
+    /**
+     * 标识
+     */
+    private int mTag = -1;
 
     /**
      * 私有构造
@@ -74,6 +78,19 @@ public final class IBenTTSUtil {
     }
 
     /**
+     * 开始合成语音
+     *
+     * @param tag 标识
+     * @param msg 需要合成语音的文字
+     */
+    public void startSpeaking(int tag, String msg, IBenTTSCallBack callBack) {
+        mTag = tag;
+        this.callBack = callBack;
+        mTTSManager.setParam();
+        mTTSManager.startSpeaking(msg, mTtsListener);
+    }
+
+    /**
      * 获取播放状态
      *
      * @return 播放状态
@@ -93,13 +110,15 @@ public final class IBenTTSUtil {
         if (mTTSManager != null) {
             mTTSManager.stopSpeaking();
         }
-
     }
 
     /**
      * 在界面销毁中调用
      */
     public void recycle() {
+        // 重置标识
+        mTag = -1;
+        // 回收资源
         if (mTTSManager != null) {
             mTTSManager.stopSpeaking();
             mTTSManager.destroy();
@@ -116,7 +135,7 @@ public final class IBenTTSUtil {
         @Override
         public void onSpeakBegin() {
             // showTip("开始播放");
-            callBack.onSpeakBegin();
+            callBack.onSpeakBegin(mTag);
         }
 
         @Override
@@ -141,7 +160,7 @@ public final class IBenTTSUtil {
 
         @Override
         public void onCompleted(SpeechError error) {
-            callBack.onCompleted(error);
+            callBack.onCompleted(mTag, error);
         }
 
         @Override
