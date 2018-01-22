@@ -46,5 +46,5 @@ public final class HttpUrl {
      * 正式地址 resources/views/show.html?content=
      * 测试地址 XiaoBenManager/resources/views/show.html?content=
      */
-    final static String RICH_HEADER = "resources/views/show.html?content=";
+    public final static String RICH_HEADER = "resources/views/show.html?content=";
 }

@@ -109,8 +109,17 @@ public final class RecordManager {
      * 取消语音识别
      */
     public void cancel() {
-        if (mIat.isListening()) {
+        if (mIat.isListening() && mIat != null) {
             mIat.cancel();
         }
+    }
+
+    /**
+     * 是否在录音状态
+     *
+     * @return 是否在录音状态
+     */
+    public boolean isListening() {
+        return mIat != null && mIat.isListening();
     }
 }

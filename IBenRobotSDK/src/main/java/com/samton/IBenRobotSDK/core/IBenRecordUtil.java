@@ -129,6 +129,15 @@ public final class IBenRecordUtil {
     }
 
     /**
+     * 是否在录音状态
+     *
+     * @return 是否在录音状态
+     */
+    public boolean isListening() {
+        return mRecordManager.isListening();
+    }
+
+    /**
      * 结束识别
      */
     public void stopRecognize() {

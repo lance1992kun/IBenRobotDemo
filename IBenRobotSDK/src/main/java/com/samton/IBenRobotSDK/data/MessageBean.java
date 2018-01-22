@@ -144,7 +144,7 @@ public final class MessageBean {
                     this.daily = daily;
                 }
 
-                static class CurrentBean {
+                public static class CurrentBean {
                     /**
                      * city : 北京
                      * date : 2017-07-06

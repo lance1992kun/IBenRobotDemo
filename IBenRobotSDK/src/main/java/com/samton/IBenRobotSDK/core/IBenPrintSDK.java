@@ -11,6 +11,7 @@ import net.posprinter.posprinterface.IMyBinder;
 import net.posprinter.posprinterface.ProcessData;
 import net.posprinter.posprinterface.UiExecute;
 import net.posprinter.service.PosprinterService;
+import net.posprinter.utils.DataForSendToPrinterPos80;
 import net.posprinter.utils.PosPrinterDev;
 
 import java.util.List;
@@ -145,15 +146,40 @@ public final class IBenPrintSDK {
     /**
      * 打印方法
      *
-     * @param bytes 要打印的Byte数组
+     * @param mContext 上下文对象(用来从连打印机)
+     * @param bytes    要打印的Byte数组
      */
-    public void print(final List<byte[]> bytes) {
+    public void print(final Context mContext, final List<byte[]> bytes) {
         if (null != binder && null != bytes) {
             binder.clearBuffer();
             binder.writeDataByYouself(new UiExecute() {
                 @Override
                 public void onsucess() {
+                    // 此处也可以开启读取打印机的数据
+                    // 参数同样是一个实现的UiExecute接口对象
+                    // 如果读的过程重出现异常，可以判断连接也发生异常，已经断开
+                    // 这个读取的方法中，会一直在一条子线程中执行读取打印机发生的数据，
+                    // 直到连接断开或异常才结束，并执行onFailed
+                    binder.write(DataForSendToPrinterPos80.openOrCloseAutoReturnPrintState(0x1f), new UiExecute() {
+                        @Override
+                        public void onsucess() {
+                            binder.acceptdatafromprinter(new UiExecute() {
+                                @Override
+                                public void onsucess() {
+                                }
 
+                                @Override
+                                public void onfailed() {
+                                    isConnected = false;
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onfailed() {
+                            reconnectPrinter(mContext);
+                        }
+                    });
                 }
 
                 @Override
