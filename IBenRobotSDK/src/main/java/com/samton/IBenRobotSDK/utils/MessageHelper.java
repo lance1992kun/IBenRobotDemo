@@ -109,16 +109,15 @@ public final class MessageHelper {
      * 获取切换模式类型的回写信息
      *
      * @param code    类型>>>0失败，1>>>成功
-     * @param type    消息类型
      * @param content 要回写的信息
      * @return 回写信息
      */
-    public static String getModeMessage(int code, String type, String content) {
+    public static String getModeMessage(int code, String content) {
         String result;
         try {
             JSONObject object = new JSONObject();
             object.put("command", "modeMessage");
-            object.put("type", type);
+            object.put("type", "mode");
             object.put("code", code);
             object.put("content", content);
             result = object.toString();

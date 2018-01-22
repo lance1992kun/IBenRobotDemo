@@ -79,7 +79,7 @@ public final class IBenChatSDK {
      */
     public void initIMSDK(Context mContext) {
         // 初始化IM模块
-        IBenIMHelper.getInstance().init(mTag,mContext, callBack);
+        IBenIMHelper.getInstance().init(mTag, mContext, callBack);
     }
 
     /**
@@ -119,6 +119,8 @@ public final class IBenChatSDK {
      * @param msg 要发送的信息
      */
     public void sendMessage(int tag, final String msg) {
+        // 标识位赋值
+        mTag = tag;
         HttpUtil.getInstance().create(HttpRequest.class)
                 .getRobotChatFlag(SPUtils.getInstance().getString(ROBOT_APP_KEY))
                 .subscribeOn(Schedulers.io())
