@@ -7,6 +7,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.samton.IBenRobotSDK.utils.LogUtils;
+
 import net.posprinter.posprinterface.IMyBinder;
 import net.posprinter.posprinterface.ProcessData;
 import net.posprinter.posprinterface.UiExecute;
@@ -98,7 +100,7 @@ public final class IBenPrintSDK {
     /**
      * 蓝牙连接打印机
      */
-    public void connectPrinter(Context context) {
+    public void connectPrinter(final Context context) {
         // 获取所有的USB打印机
         List<String> strings = PosPrinterDev.GetUsbPathNames(context);
         // 没有打印机的话直接返回
@@ -114,7 +116,34 @@ public final class IBenPrintSDK {
             binder.connectUsbPort(context, s, new UiExecute() {
                 @Override
                 public void onsucess() {
-                    isConnected = true;
+                    // 此处也可以开启读取打印机的数据
+                    // 参数同样是一个实现的UiExecute接口对象
+                    // 如果读的过程重出现异常，可以判断连接也发生异常，已经断开
+                    // 这个读取的方法中，会一直在一条子线程中执行读取打印机发生的数据，
+                    // 直到连接断开或异常才结束，并执行onFailed
+                    binder.write(DataForSendToPrinterPos80.openOrCloseAutoReturnPrintState(0x1f), new UiExecute() {
+                        @Override
+                        public void onsucess() {
+                            binder.acceptdatafromprinter(new UiExecute() {
+                                @Override
+                                public void onsucess() {
+                                    LogUtils.e("打印机已经建立连接--->");
+                                    isConnected = true;
+                                }
+
+                                @Override
+                                public void onfailed() {
+                                    LogUtils.e("打印机已经断开连接--->");
+                                    isConnected = false;
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onfailed() {
+                            reconnectPrinter(context);
+                        }
+                    });
                 }
 
                 @Override
@@ -143,43 +172,19 @@ public final class IBenPrintSDK {
         return isConnected;
     }
 
+
     /**
      * 打印方法
      *
-     * @param mContext 上下文对象(用来从连打印机)
-     * @param bytes    要打印的Byte数组
+     * @param bytes 要打印的Byte数组
      */
-    public void print(final Context mContext, final List<byte[]> bytes) {
+    public void print(final List<byte[]> bytes) {
         if (null != binder && null != bytes) {
             binder.clearBuffer();
             binder.writeDataByYouself(new UiExecute() {
                 @Override
                 public void onsucess() {
-                    // 此处也可以开启读取打印机的数据
-                    // 参数同样是一个实现的UiExecute接口对象
-                    // 如果读的过程重出现异常，可以判断连接也发生异常，已经断开
-                    // 这个读取的方法中，会一直在一条子线程中执行读取打印机发生的数据，
-                    // 直到连接断开或异常才结束，并执行onFailed
-                    binder.write(DataForSendToPrinterPos80.openOrCloseAutoReturnPrintState(0x1f), new UiExecute() {
-                        @Override
-                        public void onsucess() {
-                            binder.acceptdatafromprinter(new UiExecute() {
-                                @Override
-                                public void onsucess() {
-                                }
 
-                                @Override
-                                public void onfailed() {
-                                    isConnected = false;
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onfailed() {
-                            reconnectPrinter(mContext);
-                        }
-                    });
                 }
 
                 @Override
