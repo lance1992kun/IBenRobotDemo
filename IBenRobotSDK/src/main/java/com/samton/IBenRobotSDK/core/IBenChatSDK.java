@@ -7,7 +7,6 @@ import com.samton.IBenRobotSDK.data.MessageBean;
 import com.samton.IBenRobotSDK.interfaces.IBenMsgCallBack;
 import com.samton.IBenRobotSDK.net.HttpRequest;
 import com.samton.IBenRobotSDK.net.HttpUtil;
-import com.samton.IBenRobotSDK.utils.LogUtils;
 import com.samton.IBenRobotSDK.utils.SPUtils;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -109,7 +108,7 @@ public final class IBenChatSDK {
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
-                        LogUtils.e(throwable.getMessage());
+                        callBack.onFailed(mTag, throwable.getMessage());
                     }
                 });
     }
@@ -120,7 +119,7 @@ public final class IBenChatSDK {
      * @param tag 标识
      * @param msg 要发送的信息
      */
-    public void sendMessage(int tag, final String msg) {
+    public void sendMessage(final int tag, final String msg) {
         // 标识位赋值
         mTag = tag;
         HttpUtil.getInstance().create(HttpRequest.class)
@@ -142,7 +141,7 @@ public final class IBenChatSDK {
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
-                        LogUtils.e(throwable.getMessage());
+                        callBack.onFailed(mTag, throwable.getMessage());
                     }
                 });
     }
