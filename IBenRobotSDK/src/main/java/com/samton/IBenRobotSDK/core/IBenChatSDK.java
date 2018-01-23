@@ -88,6 +88,8 @@ public final class IBenChatSDK {
      * @param msg 要发送的信息
      */
     public void sendMessage(final String msg) {
+        // 标识位赋值
+        mTag = -1;
         HttpUtil.getInstance().create(HttpRequest.class)
                 .getRobotChatFlag(SPUtils.getInstance().getString(ROBOT_APP_KEY))
                 .subscribeOn(Schedulers.io())

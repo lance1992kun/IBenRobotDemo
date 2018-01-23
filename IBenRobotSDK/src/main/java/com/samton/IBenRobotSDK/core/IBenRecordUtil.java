@@ -106,6 +106,8 @@ public final class IBenRecordUtil {
      * 开始识别
      */
     public void startRecognize() {
+        // 设置此次的标识
+        mTag = -1;
         // 清空之前的识别结果
         map = new LinkedHashMap<>();
         // map.clear();

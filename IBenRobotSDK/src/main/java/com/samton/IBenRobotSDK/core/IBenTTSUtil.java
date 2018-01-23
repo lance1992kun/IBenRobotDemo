@@ -72,6 +72,7 @@ public final class IBenTTSUtil {
      * @param msg 需要合成语音的文字
      */
     public void startSpeaking(String msg, IBenTTSCallBack callBack) {
+        mTag = -1;
         this.callBack = callBack;
         mTTSManager.setParam();
         mTTSManager.startSpeaking(msg, mTtsListener);

@@ -22,7 +22,6 @@ import io.reactivex.schedulers.Schedulers;
 import static com.samton.IBenRobotSDK.data.Constants.APP_ID;
 import static com.samton.IBenRobotSDK.data.Constants.ROBOT_APP_KEY;
 import static com.samton.IBenRobotSDK.data.Constants.ROBOT_IM_ACCOUNT;
-import static com.samton.IBenRobotSDK.data.Constants.ROBOT_INIT_STATE;
 import static com.samton.IBenRobotSDK.data.Constants.YOU_DAO_APP_ID;
 
 
@@ -87,41 +86,30 @@ public final class MainSDK {
      * 激活机器人
      */
     public void activeRobot(final IActiveCallBack callBack) {
-        // 获取机器人激活状态(默认值为0代表未激活)
-        int initState = SPUtils.getInstance().getInt(ROBOT_INIT_STATE, 0);
-        // 机器人尚未激活先执行激活操作
-        if (initState == 0) {
-            HttpUtil.getInstance().create(HttpRequest.class)
-                    .activeRobot(SPUtils.getInstance().getString(ROBOT_APP_KEY))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .subscribe(new Consumer<ActiveBean>() {
-                        @Override
-                        public void accept(@NonNull ActiveBean initBean) throws Exception {
-                            // 初始化成功
-                            if (initBean.getRs() == 1) {
-                                // 存储激活状态
-                                SPUtils.getInstance().put(ROBOT_INIT_STATE, initBean.getRs());
-                                // 成功回调
-                                callBack.onSuccess();
-                            } else {
-                                // 失败回调
-                                callBack.onFailed(initBean.getData().getErrorMsg());
-                            }
+        // 机器人执行激活操作
+        HttpUtil.getInstance().create(HttpRequest.class)
+                .activeRobot(SPUtils.getInstance().getString(ROBOT_APP_KEY))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new Consumer<ActiveBean>() {
+                    @Override
+                    public void accept(@NonNull ActiveBean initBean) throws Exception {
+                        // 初始化成功
+                        if (initBean.getRs() != -1) {
+                            // 成功回调
+                            callBack.onSuccess();
+                        } else {
+                            // 失败回调
+                            callBack.onFailed(initBean.getData().getErrorMsg());
                         }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            // 初始化失败
-                            callBack.onFailed(throwable.getMessage());
-                        }
-                    });
-        }
-        // 机器人已经激活
-        else {
-            // 初始化成功
-            callBack.onSuccess();
-        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        // 初始化失败
+                        callBack.onFailed(throwable.getMessage());
+                    }
+                });
     }
 
     /**
