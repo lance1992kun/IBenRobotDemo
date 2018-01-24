@@ -7,6 +7,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.samton.IBenRobotSDK.utils.LogUtils;
+
 import net.posprinter.posprinterface.IMyBinder;
 import net.posprinter.posprinterface.ProcessData;
 import net.posprinter.posprinterface.UiExecute;
@@ -24,7 +26,7 @@ import java.util.List;
  *     version: 1.0
  * </pre>
  */
-public final class IBenPrintSDK {
+public class IBenPrintSDK {
     /**
      * 打印机是否链接
      */
@@ -72,7 +74,7 @@ public final class IBenPrintSDK {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 binder = (IMyBinder) iBinder;
-                // 连接成功后直接连接打印机
+                // 初始化成功后直接连接打印机
                 connectPrinter(context);
             }
 
@@ -108,6 +110,7 @@ public final class IBenPrintSDK {
         String s = null;
         if (strings.size() == 1) {
             s = strings.get(0);
+            LogUtils.d("打印机物理地址--->" + s);
         }
         if (!TextUtils.isEmpty(s) && binder != null) {
             binder.connectUsbPort(context, s, new UiExecute() {
@@ -118,28 +121,41 @@ public final class IBenPrintSDK {
 
                 @Override
                 public void onfailed() {
-                    isConnected = false;
+                    reconnectPrinter(context);
                 }
             });
         }
     }
 
     /**
-     * 蓝牙重连打印机
+     * 获取打印机连接状态 异步
+     *
+     * @param printCallBack  状态回调
      */
-    private void reconnectPrinter(Context context) {
-        if (context != null && binder != null) {
-            connectPrinter(context);
+    public void checkLinkedState(final PrintCallBack printCallBack) {
+        if (binder != null) {
+            binder.checkLinkedState(new UiExecute() {
+                @Override
+                public void onsucess() {
+                    printCallBack.isConnect(isConnected);
+                }
+
+                @Override
+                public void onfailed() {
+                    printCallBack.isConnect(false);
+                }
+            });
         }
+
     }
 
     /**
-     * 获取打印机的连接的状态
-     *
-     * @return 打印机是否已经连接上
+     * 蓝牙重连打印机
      */
-    public boolean isConnect() {
-        return isConnected;
+    public void reconnectPrinter(Context context) {
+        if (context != null && binder != null) {
+            connectPrinter(context);
+        }
     }
 
 
@@ -169,5 +185,9 @@ public final class IBenPrintSDK {
             });
         }
 
+    }
+
+    public interface PrintCallBack {
+        void isConnect(boolean isConnect);
     }
 }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.samton.IBenRobotSDK.core.IBenPrintSDK;
 import com.samton.IBenRobotSDK.core.IBenRecordUtil;
 import com.samton.IBenRobotSDK.core.IBenSerialUtil;
 import com.samton.IBenRobotSDK.core.IBenTTSUtil;
@@ -14,6 +15,11 @@ import com.samton.IBenRobotSDK.core.MainSDK;
 import com.samton.IBenRobotSDK.interfaces.ISerialCallBack;
 import com.samton.IBenRobotSDK.utils.ToastUtils;
 import com.samton.ibenrobotdemo.data.SerialMsgHelper;
+
+import net.posprinter.utils.DataForSendToPrinterPos80;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -58,6 +64,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
             }
         });
+        IBenPrintSDK.getInstance().initPrinter(this);
+    }
+
+    private List<byte[]> printContentFactory() {
+        List<byte[]> bytes = new ArrayList<>();
+        bytes.addAll(PrintBuilder.printContent("北京市*****有限公司", 1, PrintConstants.FONT_SIZEE_0, 3));
+        bytes.addAll(PrintBuilder.printContent("退卡申请凭证", 1, PrintConstants.FONT_SIZEE_1, 3));
+        bytes.addAll(PrintBuilder.printContent("         商户号       00034000001", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         商户名称     ***公司", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         网点编号     000400700010", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         网点名称     ***退卡4", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         用户卡号     1000751087394759", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         业务类型     坏卡【00-01】", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         中心流水号   195024758", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         交易时间     2016-06-25 09:10:06", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         重打印时间   2016-06-25 09:10:28", 0, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("         操作员ID     000001", 0, PrintConstants.FONT_SIZEE_0, 3));
+        bytes.addAll(PrintBuilder.printContent("退卡/资需出示，请妥善保管", 1, PrintConstants.FONT_SIZEE_0, 1));
+        bytes.addAll(PrintBuilder.printContent("重打印凭证/DHUOGJKDNWD", 1, PrintConstants.FONT_SIZEE_0, 5));
+        bytes.add(DataForSendToPrinterPos80.selectCutPagerModerAndCutPager(66, 1));
+        return bytes;
     }
 
 
@@ -99,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.mSerialPortBtn:
                 IBenSerialUtil.getInstance().sendData(msg);
+                // LogUtils.e("打印机状态--->" + IBenPrintSDK.getInstance().isConnect());
+                IBenPrintSDK.getInstance().print(printContentFactory());
                 break;
         }
     }
