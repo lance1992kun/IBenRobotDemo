@@ -7,13 +7,10 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.text.TextUtils;
 
-import com.samton.IBenRobotSDK.utils.LogUtils;
-
 import net.posprinter.posprinterface.IMyBinder;
 import net.posprinter.posprinterface.ProcessData;
 import net.posprinter.posprinterface.UiExecute;
 import net.posprinter.service.PosprinterService;
-import net.posprinter.utils.DataForSendToPrinterPos80;
 import net.posprinter.utils.PosPrinterDev;
 
 import java.util.List;
@@ -116,34 +113,7 @@ public final class IBenPrintSDK {
             binder.connectUsbPort(context, s, new UiExecute() {
                 @Override
                 public void onsucess() {
-                    // 此处也可以开启读取打印机的数据
-                    // 参数同样是一个实现的UiExecute接口对象
-                    // 如果读的过程重出现异常，可以判断连接也发生异常，已经断开
-                    // 这个读取的方法中，会一直在一条子线程中执行读取打印机发生的数据，
-                    // 直到连接断开或异常才结束，并执行onFailed
-                    binder.write(DataForSendToPrinterPos80.openOrCloseAutoReturnPrintState(0x1f), new UiExecute() {
-                        @Override
-                        public void onsucess() {
-                            binder.acceptdatafromprinter(new UiExecute() {
-                                @Override
-                                public void onsucess() {
-                                    LogUtils.e("打印机已经建立连接--->");
-                                    isConnected = true;
-                                }
-
-                                @Override
-                                public void onfailed() {
-                                    LogUtils.e("打印机已经断开连接--->");
-                                    isConnected = false;
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onfailed() {
-                            reconnectPrinter(context);
-                        }
-                    });
+                    isConnected = true;
                 }
 
                 @Override
