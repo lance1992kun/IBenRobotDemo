@@ -847,14 +847,15 @@ public final class IBenMoveSDK {
                         // 关闭流并且刷新操作
                         oos.close();
                         // 生成缩略图
-                        FileUtils.createOrExistsFile(Constants.MAP_PATH_THUMB + "/" + mapName);
+                        FileUtils.createOrExistsFile(Constants.MAP_PATH_THUMB + "/" + mapName + ".jpg");
                         // 写入BMP图像
                         int width = map.getDimension().getWidth();
                         int height = map.getDimension().getHeight();
                         Bitmap bitmap = createImage(map.getData(), width, height);
                         byte[] bytes = ImageUtils.bitmap2Bytes(bitmap, Bitmap.CompressFormat.JPEG);
-                        FileIOUtils.writeFileFromBytesByStream(FileUtils.getFileByPath(Constants.MAP_PATH_THUMB + "/" + mapName),
-                                bytes);
+                        FileIOUtils.writeFileFromBytesByStream(
+                                FileUtils.getFileByPath(
+                                        Constants.MAP_PATH_THUMB + "/" + mapName + ".jpg"), bytes);
                     } else {
                         e.onNext(false);
                     }

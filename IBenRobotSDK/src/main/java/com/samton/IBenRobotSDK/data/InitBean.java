@@ -335,6 +335,15 @@ public final class InitBean {
             private String name;
             private String location;
             private String broadcast;
+            private List<String> otherNames;
+
+            public List<String> getOtherNames() {
+                return otherNames;
+            }
+
+            public void setOtherNames(List<String> otherNames) {
+                this.otherNames = otherNames;
+            }
 
             public String getName() {
                 return name;
@@ -629,6 +638,15 @@ public final class InitBean {
             private String slocName;
             private String voiceUrl;
             private String videoUrl;
+            private String location;
+
+            public String getLocation() {
+                return location;
+            }
+
+            public void setLocation(String location) {
+                this.location = location;
+            }
 
             public int getItemId() {
                 return itemId;

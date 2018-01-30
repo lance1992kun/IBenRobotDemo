@@ -40,7 +40,7 @@ public final class HttpUrl {
      * 正式地址 robotInfo/getRobotChatFlag
      * 测试地址 XiaoBenManager/robotInfo/getRobotChatFlag
      */
-    final static String GET_ROBOT_CHAT_FLAG = "XiaoBenManager/robotInfo/getRobotChatFla";
+    final static String GET_ROBOT_CHAT_FLAG = "XiaoBenManager/robotInfo/getRobotChatFlag";
     /**
      * 富文本连接头
      * 正式地址 resources/views/show.html?content=
