@@ -158,4 +158,35 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             throwable.printStackTrace();
         }
     }
+
+    private void test() {
+        // 抬起左手
+        // 左手下右手抬起
+        // 底盘转动360
+        // 右手放下左手抬起
+        // 左手放下
+        // 左抬起
+        // 底盘转动360
+        // 左手放下右手抬起
+        // 右手放下
+        // 左右胳膊抬起
+        // 左右手放下
+        // 转动120
+        // 转动60
+        // 前进0.5M
+        // 右臂抬起
+        // 右臂放下
+        // 后退0.5M
+        // 后退0.5M
+        // 左臂抬起
+        // 左臂放下
+        // 前进0.5M
+        // 左转90
+        // 左右胳膊抬起
+        // 左右胳膊放下
+        // 右转180
+        // 左右胳膊抬起
+        // 左右胳膊放下
+        // 左转90
+    }
 }

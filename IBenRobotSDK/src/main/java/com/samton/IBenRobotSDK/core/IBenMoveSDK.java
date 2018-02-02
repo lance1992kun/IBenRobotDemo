@@ -682,8 +682,14 @@ public final class IBenMoveSDK {
                 public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
                     try {
                         if (location != null) {
+                            if (isHome()) {
+                                moveByDirection(MoveDirection.FORWARD, 300);
+                                SystemClock.sleep(1000);
+                                cancelAllActions();
+                                SystemClock.sleep(500);
+                            }
                             MoveOption option = new MoveOption();
-                            option.setSpeed(0.3);
+                            option.setSpeed(0.4);
                             option.setWithYaw(true);
                             option.setYaw(yaw);
                             moveAction = mRobotPlatform.moveTo(location, option);

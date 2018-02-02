@@ -1,99 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <Button
+        android:id="@+id/mClearBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="清空日志" />
+
+    <ScrollView
+        android:id="@+id/mContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/mClearBtn"
         android:orientation="vertical">
-        <!--ip-->
-        <EditText
-            android:id="@+id/mIpEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Please enter IP address"
-            android:text="192.168.100.101" />
-        <!--port-->
-        <EditText
-            android:id="@+id/mPortEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="default:1448(can be empty)" />
-        <!--connect Btn-->
-        <Button
-            android:id="@+id/mConnectBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="connect" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <!--left-->
-            <Button
-                android:id="@+id/mLeftBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Left" />
-            <!--right-->
-            <Button
-                android:id="@+id/mRightBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Right" />
-            <!--back-->
-            <Button
-                android:id="@+id/mBackBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Back" />
-            <!--forward-->
-            <Button
-                android:id="@+id/mForwardBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Forward" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/mStopBtn"
+        <TextView
+            android:id="@+id/mTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Stop" />
-
-        <EditText
-            android:id="@+id/mAngleEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="enter a angle" />
-
-        <Button
-            android:id="@+id/mRotateBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Rotate" />
-
-        <Button
-            android:id="@+id/mSaveMapBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SaveMap" />
-
-        <Button
-            android:id="@+id/mLoadMapBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="LoadMap" />
-        <Button
-            android:id="@+id/mGoHomeBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="GoHome" />
-    </LinearLayout>
-
-</ScrollView>
+            android:layout_centerInParent="true" />
+    </ScrollView>
+</RelativeLayout>
