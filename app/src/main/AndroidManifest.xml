@@ -70,12 +70,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--机器人测试界面-->
+        <!--串口测试界面-->
         <activity android:name=".ui.MainActivity" />
         <!--舵机等测试界面-->
         <activity android:name=".ui.SerialTestActivity" />
         <!--视频测试界面-->
         <activity android:name=".ui.VideoTestActivity" />
+        <!--底盘测试界面-->
+        <activity android:name=".ui.RobotTestActivity" />
         <!--小笨智能机器人SDK配置开始-->
         <meta-data
             android:name="IBEN_APPKEY"

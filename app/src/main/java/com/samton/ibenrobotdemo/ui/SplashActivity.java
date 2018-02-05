@@ -32,6 +32,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.button).setOnClickListener(this);
         findViewById(R.id.button2).setOnClickListener(this);
         findViewById(R.id.button3).setOnClickListener(this);
+        findViewById(R.id.button4).setOnClickListener(this);
     }
 
 
@@ -39,7 +40,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         Intent mIntent = new Intent();
         switch (v.getId()) {
-            // 机器人测试界面
+            // 串口测试界面
             case R.id.button:
                 mIntent.setClass(this, SerialTestActivity.class);
                 break;
@@ -50,6 +51,10 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             // 视频测试界面
             case R.id.button3:
                 mIntent.setClass(this, VideoTestActivity.class);
+                break;
+            // 视频测试界面
+            case R.id.button4:
+                mIntent.setClass(this, RobotTestActivity.class);
                 break;
         }
         startActivity(mIntent);
