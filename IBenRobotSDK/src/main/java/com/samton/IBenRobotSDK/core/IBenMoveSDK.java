@@ -682,6 +682,7 @@ public final class IBenMoveSDK {
                 public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
                     try {
                         if (location != null) {
+                            // 脱桩操作
                             if (isHome()) {
                                 moveByDirection(MoveDirection.FORWARD, 300);
                                 SystemClock.sleep(1000);

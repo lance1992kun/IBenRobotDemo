@@ -39,5 +39,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     // 让Retrofit支持RxJava
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    // 视频播放框架
+    compile 'com.github.xiaoyanger0825:NiceVieoPlayer:v2.2'
     compile project(':IBenRobotSDK')
 }

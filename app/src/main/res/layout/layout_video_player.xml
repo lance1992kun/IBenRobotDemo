@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!--底图-->
+    <ImageView
+        android:id="@+id/mBgImg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitXY"
+        android:visibility="visible" />
+    <!--底部控制区-->
+    <LinearLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/player_mask_bottom"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+        <!--暂停、播放按钮-->
+        <ImageView
+            android:id="@+id/mPlayBtn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/icon_player_play_small" />
+        <!--当前播放位置-->
+        <TextView
+            android:id="@+id/mCurrentPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:text="00:00" />
+        <!--进度条-->
+        <SeekBar
+            android:id="@+id/mSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:max="100"
+            android:maxHeight="1.5dp"
+            android:minHeight="1.5dp"
+            android:progressDrawable="@drawable/player_seek"
+            android:thumb="@mipmap/icon_player_thumb" />
+        <!--视频的总时长-->
+        <TextView
+            android:id="@+id/mLength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="10dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:text="00:00" />
+    </LinearLayout>
+    <!--中间开始播放按钮-->
+    <ImageView
+        android:id="@+id/mCenterPlayBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/app_name"
+        android:src="@mipmap/icon_player_play_big"
+        android:visibility="visible" />
+</RelativeLayout>

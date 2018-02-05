@@ -20,10 +20,6 @@
         android:id="@+id/button3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SOCKET测试界面" />
+        android:text="Video测试界面" />
 
-    <WebView
-        android:id="@+id/mWebView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 </LinearLayout>

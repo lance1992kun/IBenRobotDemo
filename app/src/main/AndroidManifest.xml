@@ -63,17 +63,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SplashActivity">
+        <activity android:name=".ui.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
-        <activity android:name=".RobotTestActivity" />
-
-        <service android:name="net.posprinter.service.PosprinterService" />
+        <!--机器人测试界面-->
+        <activity android:name=".ui.MainActivity" />
+        <!--舵机等测试界面-->
+        <activity android:name=".ui.SerialTestActivity" />
+        <!--视频测试界面-->
+        <activity android:name=".ui.VideoTestActivity" />
         <!--小笨智能机器人SDK配置开始-->
         <meta-data
             android:name="IBEN_APPKEY"
