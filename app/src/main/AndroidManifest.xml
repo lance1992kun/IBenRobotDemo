@@ -78,6 +78,8 @@
         <activity android:name=".ui.VideoTestActivity" />
         <!--底盘测试界面-->
         <activity android:name=".ui.RobotTestActivity" />
+        <!--音频测试界面-->
+        <activity android:name=".ui.AudioTestActivity" />
         <!--小笨智能机器人SDK配置开始-->
         <meta-data
             android:name="IBEN_APPKEY"
@@ -107,6 +109,13 @@
             android:name="com.yuntongxun.ecsdk.booter.Alarm"
             android:exported="false"
             android:process=":push" />
+        <!-- 自适应布局配置-->
+        <meta-data
+            android:name="design_width"
+            android:value="1024" />
+        <meta-data
+            android:name="design_height"
+            android:value="768" />
     </application>
 
 </manifest>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zhy.autolayout.AutoRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="512px"
+    android:layout_height="86px"
+    android:background="@mipmap/bg_audio">
+
+    <!--暂停、播放按钮-->
+    <ImageView
+        android:id="@+id/mPlayBtn"
+        android:layout_width="40px"
+        android:layout_height="40px"
+        android:layout_marginBottom="10px"
+        android:layout_marginStart="20px"
+        android:layout_marginTop="35px"
+        android:contentDescription="@string/app_name"
+        android:src="@mipmap/icon_audio_play" />
+    <!--当前播放位置-->
+    <TextView
+        android:id="@+id/mCurrentPosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20px"
+        android:layout_marginStart="20px"
+        android:layout_toEndOf="@id/mPlayBtn"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:text="00:00" />
+    <!--进度条-->
+    <SeekBar
+        android:id="@+id/mSeekBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="11px"
+        android:layout_marginStart="20px"
+        android:layout_toEndOf="@id/mCurrentPosition"
+        android:layout_toStartOf="@+id/mLength"
+        android:background="@null"
+        android:max="100"
+        android:maxHeight="2px"
+        android:minHeight="2px"
+        android:progressDrawable="@drawable/player_seek"
+        android:thumb="@mipmap/icon_audio_thumb" />
+    <!--总时长-->
+    <TextView
+        android:id="@+id/mLength"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20px"
+        android:layout_toStartOf="@+id/mCloseBtn"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:text="00:00" />
+    <!--关闭按钮-->
+    <ImageView
+        android:id="@+id/mCloseBtn"
+        android:layout_width="40px"
+        android:layout_height="40px"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="10px"
+        android:layout_marginEnd="20px"
+        android:layout_marginStart="20px"
+        android:layout_marginTop="35px"
+        android:contentDescription="@string/app_name"
+        android:src="@mipmap/icon_audio_close" />
+
+    <!--音频名字-->
+    <TextView
+        android:id="@+id/mAudioTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10px"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:text="机器人讲解" />
+
+</com.zhy.autolayout.AutoRelativeLayout>

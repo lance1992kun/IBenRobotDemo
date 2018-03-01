@@ -41,5 +41,7 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     // 视频播放框架
     compile 'com.github.xiaoyanger0825:NiceVieoPlayer:v2.2'
+    // 自动测量
+    compile 'com.zhy:autolayout:1.4.5'
     compile project(':IBenRobotSDK')
 }

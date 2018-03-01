@@ -33,8 +33,8 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.button2).setOnClickListener(this);
         findViewById(R.id.button3).setOnClickListener(this);
         findViewById(R.id.button4).setOnClickListener(this);
+        findViewById(R.id.button5).setOnClickListener(this);
     }
-
 
     @Override
     public void onClick(View v) {
@@ -52,9 +52,13 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.button3:
                 mIntent.setClass(this, VideoTestActivity.class);
                 break;
-            // 视频测试界面
+            // 底盘测试界面
             case R.id.button4:
                 mIntent.setClass(this, RobotTestActivity.class);
+                break;
+            // 音频测试界面
+            case R.id.button5:
+                mIntent.setClass(this, AudioTestActivity.class);
                 break;
         }
         startActivity(mIntent);
