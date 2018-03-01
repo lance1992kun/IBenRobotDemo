@@ -34,10 +34,12 @@ public final class MessageHelper {
     /**
      * 获取连接成功回写信息
      *
-     * @param code 类型>>>0失败，1>>>成功
+     * @param code         类型>>>0失败，1>>>成功
+     * @param mode         模式
+     * @param isRecordOpen 录音开关是否开启
      * @return 连接成功回写信息
      */
-    public static String getConnectMessage(int code) {
+    public static String getConnectMessage(int code, int mode, boolean isRecordOpen) {
         String result;
         try {
             JSONObject object = new JSONObject();
@@ -45,7 +47,7 @@ public final class MessageHelper {
             object.put("type", "connect");
             object.put("code", code);
             if (code == CODE_SUCCESS) {
-                object.put("content", "连接成功");
+                object.put("content", "连接成功" + "#" + mode + "#" + isRecordOpen);
             } else {
                 object.put("content", "连接失败，当前已有客户端连接");
             }
@@ -130,6 +132,7 @@ public final class MessageHelper {
 
     /**
      * 获取宣讲回写信息
+     *
      * @param type    消息类型
      * @param code    类型>>>0失败，1>>>成功
      * @param content 要回写的信息

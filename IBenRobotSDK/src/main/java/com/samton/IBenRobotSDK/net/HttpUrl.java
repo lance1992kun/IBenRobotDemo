@@ -14,9 +14,9 @@ public final class HttpUrl {
     /**
      * 服务器地址
      * 正式地址 http://114.55.111.3/
-     * 测试地址 http://121.41.40.145:7080/
+     * 测试地址 http://47.96.137.231:7080/
      */
-    static final String BASE_URL = "http://121.41.40.145:7080/";
+    static final String BASE_URL = "http://47.96.137.231:7080/";
     /**
      * 与小笨聊天的地址接口
      * 正式地址 iben_qa/RobotQADispatcher
