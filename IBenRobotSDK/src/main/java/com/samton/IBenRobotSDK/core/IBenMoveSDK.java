@@ -38,8 +38,9 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -74,10 +75,6 @@ public final class IBenMoveSDK {
      */
     private String mBatteryInfo = null;
     /**
-     * 持续移动的计时器
-     */
-    private Disposable mDisposable;
-    /**
      * 机器人状态回调接口
      */
     private ConnectCallBack mCallBack;
@@ -90,9 +87,21 @@ public final class IBenMoveSDK {
      */
     private int mPort = 0;
     /**
+     * 持续移动的计时器
+     */
+    private DisposableObserver<Long> mMoveTimer = null;
+    /**
      * 重连计时器
      */
-    private Disposable mReconnectTimer = null;
+    private DisposableObserver<Long> mReconnectTimer = null;
+    /**
+     * 定点移动计时器
+     */
+    private DisposableObserver<Long> mLocationTimer = null;
+    /**
+     * 定时器管理器
+     */
+    private CompositeDisposable mCompositeDisposable = null;
     /**
      * 线程池
      */
@@ -179,19 +188,28 @@ public final class IBenMoveSDK {
     private IBenMoveSDK() {
         // 初始化线程池
         mThreadPool = Executors.newFixedThreadPool(10);
+        // 初始化急事管理器
+        mCompositeDisposable = new CompositeDisposable();
     }
 
     /**
      * 回充电桩
      */
-    public void goHome() {
+    public void goHome(MoveCallBack callBack) {
         if (mRobotPlatform != null) {
-            // 停止当前左右动作
+            // 停止当前所有动作
             cancelAllActions();
             // 沉睡0.3秒
             SystemClock.sleep(300);
             try {
-                mRobotPlatform.goHome();
+                // 获取当前运动状态
+                moveAction = mRobotPlatform.goHome();
+                // 创建回桩状态定时器
+                mLocationTimer = createLocationTimer(callBack);
+                Observable.interval(0, 100, TimeUnit.MILLISECONDS)
+                        .observeOn(Schedulers.computation())
+                        .subscribe(mLocationTimer);
+                mCompositeDisposable.add(mLocationTimer);
             } catch (Throwable throwable) {
                 onRequestError();
             }
@@ -260,11 +278,11 @@ public final class IBenMoveSDK {
                 @Override
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (aBoolean) {
-                        if (mReconnectTimer != null && !mReconnectTimer.isDisposed()) {
-                            mReconnectTimer.dispose();
-                            mReconnectTimer = null;
-                        }
+                        // 移除重连计时器
+                        mCompositeDisposable.remove(mReconnectTimer);
+                        // 标识位重置
                         isConnected = true;
+                        // 回调机器人连接成功
                         mCallBack.onConnectSuccess();
                     } else {
                         isConnected = false;
@@ -285,19 +303,11 @@ public final class IBenMoveSDK {
      * 重连机器人
      */
     public void reconnect() {
-        if (mReconnectTimer == null) {
-            mReconnectTimer = Observable.interval(0, 3000, TimeUnit.MILLISECONDS)
-                    .observeOn(Schedulers.single()).subscribe(new Consumer<Long>() {
-                        @Override
-                        public void accept(@NonNull Long aLong) throws Exception {
-                            connectRobot(mIp, mPort, mCallBack);
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                        }
-                    });
-        }
+        mReconnectTimer = createReconnectTimer();
+        Observable.interval(0, 3000, TimeUnit.MILLISECONDS)
+                .observeOn(Schedulers.single())
+                .subscribe(mReconnectTimer);
+        mCompositeDisposable.add(mReconnectTimer);
     }
 
     /**
@@ -457,26 +467,15 @@ public final class IBenMoveSDK {
      * @param period    间隔
      */
     public void moveByDirection(MoveDirection direction, long period) {
-        // 首先清除掉定时器
+        // 首先清除掉已经有的定时器
         cancelTimedAction();
-        final MoveDirection moveDirection = direction;
-        if (moveDirection != null && mRobotPlatform != null) {
-            mDisposable = Observable.interval(0, period, TimeUnit.MILLISECONDS)
-                    .observeOn(Schedulers.computation()).subscribe(new Consumer<Long>() {
-                        @Override
-                        public void accept(@NonNull Long aLong) throws Exception {
-                            try {
-                                mRobotPlatform.moveBy(moveDirection);
-                            } catch (Throwable throwable) {
-                                onRequestError();
-                            }
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            onRequestError();
-                        }
-                    });
+        if (direction != null && mRobotPlatform != null) {
+            // 开启运动计时器，定时移动
+            mMoveTimer = createMoveTimer(direction);
+            Observable.interval(0, period, TimeUnit.MILLISECONDS)
+                    .observeOn(Schedulers.computation())
+                    .subscribe(mMoveTimer);
+            mCompositeDisposable.add(mReconnectTimer);
         } else {
             onRequestError();
         }
@@ -706,18 +705,11 @@ public final class IBenMoveSDK {
                     if (!aBoolean) {
                         onRequestError();
                     } else {
-                        while (true) {
-                            if (moveAction != null) {
-                                ActionStatus status = moveAction.getStatus();
-                                if (status.equals(ActionStatus.FINISHED) || status.equals(ActionStatus.STOPPED)
-                                        || status.equals(ActionStatus.ERROR)) {
-                                    callBack.onStateChange(status);
-                                    break;
-                                }
-                            } else {
-                                break;
-                            }
-                        }
+                        // 创建定点回调计时器
+                        mLocationTimer = createLocationTimer(callBack);
+                        Observable.interval(0, 100, TimeUnit.MILLISECONDS)
+                                .subscribe(mLocationTimer);
+                        mCompositeDisposable.add(mLocationTimer);
                     }
                 }
             }, new Consumer<Throwable>() {
@@ -998,10 +990,10 @@ public final class IBenMoveSDK {
      * 清空计时器
      */
     private void cancelTimedAction() {
-        if (mDisposable != null && !mDisposable.isDisposed()) {
-            mDisposable.dispose();
-            mDisposable = null;
-        }
+        // 取消移动计时器
+        mCompositeDisposable.remove(mMoveTimer);
+        // 取消定点移动计时器
+        mCompositeDisposable.remove(mLocationTimer);
     }
 
     /**
@@ -1028,5 +1020,87 @@ public final class IBenMoveSDK {
 //        canvas.restore();
 //        return result;
         return Bitmap.createBitmap(rawData, width, height, Bitmap.Config.ARGB_8888).copy(Bitmap.Config.ARGB_8888, true);
+    }
+
+    /**
+     * 创建移动定时器
+     *
+     * @param direction 运动方向
+     * @return 移动定时器
+     */
+    private DisposableObserver<Long> createMoveTimer(MoveDirection direction) {
+        final MoveDirection mDirection = direction;
+        return new DisposableObserver<Long>() {
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                mRobotPlatform.moveBy(mDirection);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable throwable) {
+                onRequestError();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+    }
+
+    /**
+     * 创建定点导航回调定时器
+     *
+     * @param callBack 回调
+     * @return 导航回调定时器
+     */
+    private DisposableObserver<Long> createLocationTimer(final MoveCallBack callBack) {
+        return new DisposableObserver<Long>() {
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                ActionStatus status = moveAction.getStatus();
+                if (status.equals(ActionStatus.FINISHED) || status.equals(ActionStatus.STOPPED)
+                        || status.equals(ActionStatus.ERROR)) {
+                    callBack.onStateChange(status);
+                    // 回调后移除计时器
+                    mCompositeDisposable.remove(mLocationTimer);
+                }
+
+            }
+
+            @Override
+            public void onError(@NonNull Throwable throwable) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+    }
+
+    /**
+     * 创建重连计时器
+     *
+     * @return 重连计时器
+     */
+    private DisposableObserver<Long> createReconnectTimer() {
+        return new DisposableObserver<Long>() {
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                connectRobot(mIp, mPort, mCallBack);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable throwable) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
     }
 }
