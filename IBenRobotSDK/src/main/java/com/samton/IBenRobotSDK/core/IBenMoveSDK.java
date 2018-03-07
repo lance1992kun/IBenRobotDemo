@@ -279,7 +279,9 @@ public final class IBenMoveSDK {
                 public void accept(@NonNull Boolean aBoolean) throws Exception {
                     if (aBoolean) {
                         // 移除重连计时器
-                        mCompositeDisposable.remove(mReconnectTimer);
+                        if (mReconnectTimer != null) {
+                            mCompositeDisposable.remove(mReconnectTimer);
+                        }
                         // 标识位重置
                         isConnected = true;
                         // 回调机器人连接成功
