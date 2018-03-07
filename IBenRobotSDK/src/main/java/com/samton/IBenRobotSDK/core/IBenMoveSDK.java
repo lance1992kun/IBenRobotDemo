@@ -993,9 +993,13 @@ public final class IBenMoveSDK {
      */
     private void cancelTimedAction() {
         // 取消移动计时器
-        mCompositeDisposable.remove(mMoveTimer);
+        if (mMoveTimer != null) {
+            mCompositeDisposable.remove(mMoveTimer);
+        }
         // 取消定点移动计时器
-        mCompositeDisposable.remove(mLocationTimer);
+        if (mLocationTimer != null) {
+            mCompositeDisposable.remove(mLocationTimer);
+        }
     }
 
     /**
