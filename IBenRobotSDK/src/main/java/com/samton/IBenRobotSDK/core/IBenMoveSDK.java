@@ -477,7 +477,7 @@ public final class IBenMoveSDK {
             Observable.interval(0, period, TimeUnit.MILLISECONDS)
                     .observeOn(Schedulers.computation())
                     .subscribe(mMoveTimer);
-            mCompositeDisposable.add(mReconnectTimer);
+            mCompositeDisposable.add(mMoveTimer);
         } else {
             onRequestError();
         }
@@ -709,7 +709,7 @@ public final class IBenMoveSDK {
                     } else {
                         // 创建定点回调计时器
                         mLocationTimer = createLocationTimer(callBack);
-                        Observable.interval(0, 100, TimeUnit.MILLISECONDS)
+                        Observable.interval(0, 200, TimeUnit.MILLISECONDS)
                                 .subscribe(mLocationTimer);
                         mCompositeDisposable.add(mLocationTimer);
                     }
@@ -995,10 +995,12 @@ public final class IBenMoveSDK {
         // 取消移动计时器
         if (mMoveTimer != null) {
             mCompositeDisposable.remove(mMoveTimer);
+            mMoveTimer = null;
         }
         // 取消定点移动计时器
         if (mLocationTimer != null) {
             mCompositeDisposable.remove(mLocationTimer);
+            mLocationTimer = null;
         }
     }
 
@@ -1069,9 +1071,10 @@ public final class IBenMoveSDK {
                         || status.equals(ActionStatus.ERROR)) {
                     callBack.onStateChange(status);
                     // 回调后移除计时器
-                    mCompositeDisposable.remove(mLocationTimer);
+                    if (mLocationTimer!=null){
+                        mCompositeDisposable.remove(mLocationTimer);
+                    }
                 }
-
             }
 
             @Override
