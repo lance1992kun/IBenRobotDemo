@@ -73,7 +73,12 @@ public class IBenPrintSDK {
         mConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                binder = (IMyBinder) iBinder;
+                // 权宜之计，解决bug问题
+                try{
+                    binder = (IMyBinder) iBinder;
+                }catch (Throwable throwable){
+                    LogUtils.e(throwable.getMessage());
+                }
                 // 初始化成功后直接连接打印机
                 connectPrinter(context);
             }

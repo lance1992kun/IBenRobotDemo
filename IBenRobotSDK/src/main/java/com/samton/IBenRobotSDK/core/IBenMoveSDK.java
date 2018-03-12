@@ -678,6 +678,9 @@ public final class IBenMoveSDK {
      */
     public void go2Location(final Location location, final float yaw, final MoveCallBack callBack) {
         if (mRobotPlatform != null) {
+            // 首先停止所有动作
+            cancelAllActions();
+            // 然后执行行走至定点操作
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
                 public void subscribe(@NonNull ObservableEmitter<Boolean> e) throws Exception {
@@ -1071,8 +1074,9 @@ public final class IBenMoveSDK {
                         || status.equals(ActionStatus.ERROR)) {
                     callBack.onStateChange(status);
                     // 回调后移除计时器
-                    if (mLocationTimer!=null){
+                    if (mLocationTimer != null) {
                         mCompositeDisposable.remove(mLocationTimer);
+                        mLocationTimer = null;
                     }
                 }
             }

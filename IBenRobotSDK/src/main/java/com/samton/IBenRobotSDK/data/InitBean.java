@@ -639,6 +639,33 @@ public final class InitBean {
             private String voiceUrl;
             private String videoUrl;
             private String location;
+            private String voiceOldname;
+            private String videoOldname;
+            private String imgOldname;
+
+            public String getVoiceOldname() {
+                return voiceOldname;
+            }
+
+            public void setVoiceOldname(String voiceOldname) {
+                this.voiceOldname = voiceOldname;
+            }
+
+            public String getVideoOldname() {
+                return videoOldname;
+            }
+
+            public void setVideoOldname(String videoOldname) {
+                this.videoOldname = videoOldname;
+            }
+
+            public String getImgOldname() {
+                return imgOldname;
+            }
+
+            public void setImgOldname(String imgOldname) {
+                this.imgOldname = imgOldname;
+            }
 
             public String getLocation() {
                 return location;
@@ -1002,6 +1029,15 @@ public final class InitBean {
         private int startTime;
         private int endTime;
         private int state;
+        private int faceCount;
+
+        public int getFaceCount() {
+            return faceCount;
+        }
+
+        public void setFaceCount(int faceCount) {
+            this.faceCount = faceCount;
+        }
 
         public int getWorkAttendanceId() {
             return workAttendanceId;
