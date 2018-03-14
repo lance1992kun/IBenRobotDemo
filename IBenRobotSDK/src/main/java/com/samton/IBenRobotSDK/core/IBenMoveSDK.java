@@ -65,7 +65,7 @@ public final class IBenMoveSDK {
     /**
      * 动作接口
      */
-    private IMoveAction moveAction;
+    // private IMoveAction moveAction;
     /**
      * 是否已经连接机器人
      */
@@ -202,8 +202,8 @@ public final class IBenMoveSDK {
             // 沉睡0.3秒
             SystemClock.sleep(300);
             try {
-                // 获取当前运动状态
-                moveAction = mRobotPlatform.goHome();
+                // 让机器人回充电桩
+                mRobotPlatform.goHome();
                 // 创建回桩状态定时器
                 mLocationTimer = createLocationTimer(callBack);
                 Observable.interval(0, 100, TimeUnit.MILLISECONDS)
@@ -697,7 +697,7 @@ public final class IBenMoveSDK {
                             option.setSpeed(0.4);
                             option.setWithYaw(true);
                             option.setYaw(yaw);
-                            moveAction = mRobotPlatform.moveTo(location, option);
+                            // moveAction = mRobotPlatform.moveTo(location, option);
                             e.onNext(true);
                         }
                     } catch (Throwable throwable) {
@@ -1069,15 +1069,25 @@ public final class IBenMoveSDK {
         return new DisposableObserver<Long>() {
             @Override
             public void onNext(@NonNull Long aLong) {
-                ActionStatus status = moveAction.getStatus();
-                if (status.equals(ActionStatus.FINISHED) || status.equals(ActionStatus.STOPPED)
-                        || status.equals(ActionStatus.ERROR)) {
-                    callBack.onStateChange(status);
+                IMoveAction moveAction = mRobotPlatform.getCurrentAction();
+                if (moveAction != null) {
+                    ActionStatus status = moveAction.getStatus();
+                    if (status.equals(ActionStatus.FINISHED) || status.equals(ActionStatus.STOPPED)
+                            || status.equals(ActionStatus.ERROR)) {
+                        callBack.onStateChange(status);
+                        // 回调后移除计时器
+                        if (mLocationTimer != null) {
+                            mCompositeDisposable.remove(mLocationTimer);
+                            mLocationTimer = null;
+                        }
+                    }
+                }else {
                     // 回调后移除计时器
                     if (mLocationTimer != null) {
                         mCompositeDisposable.remove(mLocationTimer);
                         mLocationTimer = null;
                     }
+                    callBack.onStateChange(ActionStatus.ERROR);
                 }
             }
 
