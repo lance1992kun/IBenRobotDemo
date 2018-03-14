@@ -642,6 +642,15 @@ public final class InitBean {
             private String voiceOldname;
             private String videoOldname;
             private String imgOldname;
+            private boolean isReach;
+
+            public boolean isReach() {
+                return isReach;
+            }
+
+            public void setReach(boolean reach) {
+                isReach = reach;
+            }
 
             public String getVoiceOldname() {
                 return voiceOldname;
