@@ -67,9 +67,11 @@ public final class TTSManager {
         // 设置离线发音人
         else {
             // 默认发音人为小燕
-            mTts.setParameter(SpeechConstant.VOICE_NAME, SPUtils.getInstance().getString("voiceSpeaker", "xiaoyan"));
+            String voiceName = SPUtils.getInstance().getString("voiceSpeaker", "xiaoyan");
+            // 设置发音人
+            mTts.setParameter(SpeechConstant.VOICE_NAME, voiceName);
             // 设置发音人资源路径
-            mTts.setParameter(ResourceUtil.TTS_RES_PATH, getResourcePath());
+            mTts.setParameter(ResourceUtil.TTS_RES_PATH, getResourcePath(voiceName));
         }
         // 设置合成语速
         mTts.setParameter(SpeechConstant.SPEED, "50");
@@ -92,13 +94,13 @@ public final class TTSManager {
     /**
      * 获取发音人资源路径
      */
-    private String getResourcePath() {
+    private String getResourcePath(String voiceName) {
         String tempBuffer = "";
         // 合成通用资源
         tempBuffer += ResourceUtil.generateResourcePath(mContext, ResourceUtil.RESOURCE_TYPE.assets, "tts/common.jet");
         tempBuffer += ";";
         // 发音人资源
-        tempBuffer += ResourceUtil.generateResourcePath(mContext, ResourceUtil.RESOURCE_TYPE.assets, "tts/xiaoyan.jet");
+        tempBuffer += ResourceUtil.generateResourcePath(mContext, ResourceUtil.RESOURCE_TYPE.assets, "tts/" + voiceName + ".jet");
         return tempBuffer;
     }
 
