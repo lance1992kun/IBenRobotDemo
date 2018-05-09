@@ -80,6 +80,8 @@
         <activity android:name=".ui.RobotTestActivity" />
         <!--音频测试界面-->
         <activity android:name=".ui.AudioTestActivity" />
+        <!--纯语音测试界面-->
+        <activity android:name=".ui.IBenVoiceTest" />
         <!--小笨智能机器人SDK配置开始-->
         <meta-data
             android:name="IBEN_APPKEY"

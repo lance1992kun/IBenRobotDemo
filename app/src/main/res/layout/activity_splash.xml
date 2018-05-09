@@ -33,5 +33,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Audio测试界面" />
+    <Button
+        android:id="@+id/button6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="单纯语音测试界面" />
 
 </LinearLayout>

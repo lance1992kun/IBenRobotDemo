@@ -1,1 +1,1 @@
-include ':app', ':IBenRobotSDK'
+include ':app', ':IBenRobotSDK', ':IBenVoice'

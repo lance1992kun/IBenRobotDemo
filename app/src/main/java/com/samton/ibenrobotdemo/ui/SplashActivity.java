@@ -34,6 +34,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.button3).setOnClickListener(this);
         findViewById(R.id.button4).setOnClickListener(this);
         findViewById(R.id.button5).setOnClickListener(this);
+        findViewById(R.id.button6).setOnClickListener(this);
     }
 
     @Override
@@ -59,6 +60,10 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             // 音频测试界面
             case R.id.button5:
                 mIntent.setClass(this, AudioTestActivity.class);
+                break;
+            // 纯语音功能测试
+            case R.id.button6:
+                mIntent.setClass(this, IBenVoiceTest.class);
                 break;
         }
         startActivity(mIntent);
